@@ -1,4 +1,4 @@
-const RANDOM_NUMBER = function (min = 0, max = 1000, precision = 5) {
+const getRandomNumber = function (min = 0, max = 1000, precision = 5) {
   if (min < 0 || max < 0 || precision < 0) {
     min = Math.sqrt(Math.pow(min));
     max = Math.sqrt(Math.pow(max));
@@ -12,4 +12,4 @@ const RANDOM_NUMBER = function (min = 0, max = 1000, precision = 5) {
   }
 }
 
-alert(RANDOM_NUMBER())
+alert(getRandomNumber())
