@@ -38,13 +38,17 @@ const POSITIONS = [
 ]
 
 //Функция, создающая quantitiOffers элементов массива с требуемыми данными.
-const getMassiveData = (quantitiOffers = 10, author, offer, location, massiveData = []) => {
+const getMassiveData = (quantitiOffers = 10) => {
+  let author = {};
+  let location = {};
+  let offer = {};
+  const massiveData = [];
   for (let i = 0; i < quantitiOffers; i++) {
-    author = getAuthor();
-    offer =  getOfferInfo();
-    location = getlocation();
+    author = getAuthor(),
+    location = getlocation(),
+    offer = getOfferInfo(),
     offer.address = location.x + ', ' + location.y;
-    massiveData.push({author,location,offer});
+    massiveData.push({author, location, offer});
   }
   return massiveData;
 };
@@ -73,8 +77,11 @@ const getOfferInfo = () => {
 //Функция, случайным образом создающая заголовок обьявления для функции getOfferInfo
 const getTitle = () => getValues(DESCRIPTIONS) + ',' + POSITIONS[getRandomNumber(0,4,0)];
 //Функция, создающая массив со случайным колличеством случайных неповторяющихся элементов другого массива
-const getValues = (massive, values = [], numberValue, isValueExist = true, quantitiValues) => {
-  quantitiValues = getRandomNumber(1,massive.length,0);
+const getValues = (massive) => {
+  const values = [];
+  const quantitiValues = getRandomNumber(1,massive.length,0);
+  let isValueExist = true;
+  let numberValue = 0;
   for (let i = 1; i <= quantitiValues; i++) {
     numberValue = getRandomNumber(0,5,0);
     isValueExist = values.some((value) => value === massive[numberValue]);
@@ -98,7 +105,8 @@ const getRandomNumber = function (min = 0, max = 1000, precision = 5) {
   }
 }
 //Функция, создающая массив с quantitiPhotos количеством типовых элементов.
-const getPhotos = (quantitiPhotos = 3, photos =[]) => {
+const getPhotos = (quantitiPhotos = 3) => {
+  const photos = [];
   for (let i = 0; i < getRandomNumber(1,quantitiPhotos,0); i++) {
     photos.push('http://o0.github.io/assets/images/tokyo/hotel' + (i+1) + '.jpg');
   }
