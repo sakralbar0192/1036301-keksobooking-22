@@ -1,3 +1,1 @@
-import {getMassiveData} from './data.js';
-
-getMassiveData()
+import './generating-elements.js';

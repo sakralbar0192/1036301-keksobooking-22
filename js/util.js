@@ -13,7 +13,7 @@ const getRandomNumber = function (min = 0, max = 1000, precision = 5) {
 }
 
 //Функция, создающая массив со случайным колличеством случайных неповторяющихся элементов другого массива
-const getValues = (massive) => {
+const getRandomValuesMassive = (massive) => {
   const values = [];
   const quantitiValues = getRandomNumber(1,massive.length,0);
   let isValueExist = true;
@@ -28,4 +28,15 @@ const getValues = (massive) => {
   return values;
 }
 
-export {getRandomNumber, getValues};
+//Функция, создающая элемент с заданным классом
+
+const makeElement = (tagName, className, text) => {
+  const element = document.createElement(tagName);
+  element.classList.add(className);
+  if (text) {
+    element.textContent = text;
+  }
+  return element;
+};
+
+export {getRandomNumber, getRandomValuesMassive, makeElement};

@@ -1,4 +1,4 @@
-import {getRandomNumber, getValues} from './util.js';
+import {getRandomNumber, getRandomValuesMassive} from './util.js';
 
 const TYPES = [
   'palace',
@@ -6,6 +6,14 @@ const TYPES = [
   'house',
   'bungalow',
 ];
+
+const RUSSIANTYPES = [
+  'Дворец',
+  'Квартира',
+  'Дом',
+  'Бунгало',
+]
+
 const CHECKINS = [
   '12:00',
   '13:00',
@@ -71,13 +79,13 @@ const getOfferInfo = () => {
     guests : getRandomNumber(0,3,0),
     checkin : CHECKINS[getRandomNumber(0,2,0)],
     checkout : CHECKINS[getRandomNumber(0,2,0)],
-    features : getValues(FEATURES),
+    features : getRandomValuesMassive(FEATURES),
     description :'строка — описание помещения. Придумайте самостоятельно.',
     photos : getPhotos(),
   };
 };
 //Функция, случайным образом создающая заголовок обьявления для функции getOfferInfo
-const getTitle = () => getValues(DESCRIPTIONS) + ',' + POSITIONS[getRandomNumber(0,4,0)];
+const getTitle = () => getRandomValuesMassive(DESCRIPTIONS) + ',' + POSITIONS[getRandomNumber(0,4,0)];
 
 //Функция, создающая массив с quantitiPhotos количеством типовых элементов.
 const getPhotos = (quantitiPhotos = 3) => {
@@ -95,4 +103,5 @@ const getlocation = () => {
   };
 };
 
-export {getMassiveData};
+
+export {getMassiveData, RUSSIANTYPES, TYPES};
