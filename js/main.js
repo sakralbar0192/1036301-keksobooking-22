@@ -1,3 +1,4 @@
-import {getMassiveData} from './data.js';
+import {makeOffers} from './offers.js';
 
-getMassiveData()
+const mapCanvas = document.querySelector('.map__canvas');
+mapCanvas.appendChild(makeOffers(1));
