@@ -28,8 +28,7 @@ const getRandomValuesMassive = (massive) => {
   return values;
 }
 
-//Функция, создающая элемент с заданным классом
-
+//Функция, создающая элемент с заданным классом и текстовым содержимым, при наличии
 const makeElement = (tagName, className, text) => {
   const element = document.createElement(tagName);
   element.classList.add(className);
