@@ -67,6 +67,7 @@ const getMassiveData = (quantitiOffers = 10) => {
   }
   return massiveData;
 };
+
 //Функция, создающая обьект offers массива данных с инфомацией о предложении
 const getOfferInfo = () => {
   return {
@@ -83,6 +84,7 @@ const getOfferInfo = () => {
     photos : getPhotos(),
   };
 };
+
 //Функция, создающая массив с quantitiPhotos типовых элементов.
 const getPhotos = (quantitiPhotos = 3) => {
   const photos = [];
