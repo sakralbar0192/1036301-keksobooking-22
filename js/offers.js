@@ -5,7 +5,6 @@ const offerTemplate = document.querySelector('#card').content.querySelector('.po
 
 //Функция, создающая шаблонную разметку для одного элемента.
 const createOfferElement = ({author,location, offer}) => {
-  const offerFragment = document.createDocumentFragment();
   const offerElement = offerTemplate.cloneNode(true);
   offerElement.querySelector('.popup__title').textContent = offer.title;
   offerElement.querySelector('.popup__text--address').textContent = location.x + ', ' + location.y;
@@ -19,8 +18,7 @@ const createOfferElement = ({author,location, offer}) => {
   offerElement.querySelector('.popup__photos').innerHTML = '';
   offerElement.querySelector('.popup__photos').appendChild(fillElement(offer.photos, 'img', 'popup__photo', false, true));
   offerElement.querySelector('.popup__avatar').src = author.avatar;
-  offerFragment.appendChild(offerElement);
-  return offerFragment;
+  return offerElement;
 };
 
 //Функция, создающая шаблонную разметку для нескольких элементов.
