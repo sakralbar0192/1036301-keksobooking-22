@@ -1,34 +1,36 @@
-import {onSuccessSendFormMessage, onErrorSendFormMessage, showAlert} from './util.js'
 import {resetForm} from './form.js';
-import {addOffersMarkers} from './map.js';
+
 /**
- * отправляет GET запрос на сервер при успехе из полученных данных генерирует маркеры предложений
- * и размещает их на карте
+ * отправляет GET запрос на сервер и обрабатывает данные
  *
- * @param {object} map - карта на которую будут размещены маркеры
+ * @param {function} onError - функция, которая выполнится при ошибке получении данных
+ * @param {function} onError - функция, которая выполнится при успешном получении данных
+ *
  */
-const setSimilarOffersMarkers = (map) => {
+const getData = (onSuccess, onError) => {
   fetch('https://22.javascript.pages.academy/keksobooking/data')
     .then((response) => {
       if (response.ok) {
         return response.json();
       }else {
-        showAlert('Извините, проблемы с сервером, данные не могут быть загружены', 2000);
+        onError(2000);
       }
     })
-    .then((json) => {
-      addOffersMarkers(json, map);
+    .then((data) => {
+      onSuccess(data);
     }).
     catch(() => {
-      showAlert('Извините, проблемы с сервером, данные не могут быть загружены', 2000);
+      onError(2000);
     });
 }
 /**
- * Отправляет данные полученные из формы методом POST на сервер
+ * Отправляет данные методом POST
  *
  * @param {object} data - данные, отправляемые на сервер
+ * @param {function} onSuccess - функция, которая выполнится при успешной отправке данных
+ * @param {function} onSuccess - функция, которая выполнится при ошибке отправки данных
  */
-const sendData = (data) => {
+const sendData = (data, onSuccess, onError) => {
   fetch('https://22.javascript.pages.academy/keksobooking ',
     {
       method: 'POST',
@@ -41,15 +43,15 @@ const sendData = (data) => {
   )
     .then((response) => {
       if( response.ok) {
-        onSuccessSendFormMessage();
+        onSuccess();
         resetForm();
       }else{
-        onErrorSendFormMessage();
+        onError();
       }
     })
     .catch(() => {
-      onErrorSendFormMessage();
+      onError();
     })
 };
 
-export {setSimilarOffersMarkers, sendData};
+export {sendData, getData};

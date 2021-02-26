@@ -1,6 +1,7 @@
-import {initializeMap, mainMarker} from './map.js';
-import {setSimilarOffersMarkers} from './api.js';
+import {initializeMap, addOffersMarkers, mainMarker} from './map.js';
+import {getData} from './api.js';
 import {makeFormsInactive, addressField} from './form.js';
+import {showAlert} from './util.js';
 
 /**
  * Делает формы неактивными до инициализации карты.
@@ -32,6 +33,11 @@ mainMarker.on('moveend', (evt) => {
 });
 
 /**
- * Делает запрос на сервер и создает на карте метки объявлений со всплывающими попапамию
+ * Делает запрос на сервер и создает на карте метки объявлений со всплывающими попапами
  */
-setSimilarOffersMarkers(map);
+getData(
+  (data) => {
+    addOffersMarkers(data,map)
+  },
+  showAlert,
+);

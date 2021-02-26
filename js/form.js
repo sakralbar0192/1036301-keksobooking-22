@@ -9,6 +9,40 @@ const mapFiltersForm = document.querySelector('.map__filters');
 const mapFiltersFormSelects = mapFiltersForm.children;
 
 /**
+ * Функция, показывающая сообщение об успешной отправке формы
+ */
+const onSuccessSendFormMessage = () => {
+  const message = document.querySelector('#success').content.querySelector('.success').cloneNode(true);
+  document.addEventListener('keydown',(evt) => {
+    if (evt.keyCode === 27){
+      message.remove();
+    }
+  });
+  document.addEventListener('click',() => {
+    message.remove();
+  });
+  message.style.zIndex = 400;
+  document.querySelector('main').appendChild(message);
+};
+
+/**
+ * Функция, показывающая сообщение об ошибке при отправке формы
+ */
+const onErrorSendFormMessage = () => {
+  const message = document.querySelector('#error').content.querySelector('.error').cloneNode(true);
+  document.addEventListener('keydown',(evt) => {
+    if (evt.keyCode === 27){
+      message.remove();
+    }
+  });
+  document.addEventListener('click',() => {
+    message.remove();
+  });
+  message.style.zIndex = 400;
+  document.querySelector('main').appendChild(message);
+};
+
+/**
  * Функция делает формы addForm и mapFiltersForm неактивными и добавляет атрибут disabled внутренним полям
  */
 const makeFormsInactive = () => {
@@ -63,7 +97,7 @@ addFormResetButton.addEventListener('click', () => resetForm());
 addForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
   const formData = new FormData(evt.target);
-  sendData(formData);
+  sendData(formData, onSuccessSendFormMessage, onErrorSendFormMessage);
 });
 
 export {resetForm, makeFormsInactive, makeFormsActive, addressField};
