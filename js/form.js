@@ -5,8 +5,49 @@ const addForm = document.querySelector('.ad-form');
 const addressField = addForm.querySelector('#address');
 const addFormResetButton = addForm.querySelector('.ad-form__reset');
 const addFormFieldsets = addForm.querySelectorAll('.ad-form__element');
+const addFormTypeHousing = addForm.querySelector('#type');
+const addFormPricePerNight = addForm.querySelector('#price');
+const addFormTimeIn = addForm.querySelector('#timein');
+const addFormTimeOut = addForm.querySelector('#timeout');
 const mapFiltersForm = document.querySelector('.map__filters');
 const mapFiltersFormSelects = mapFiltersForm.children;
+
+/**
+ * Функция синхронизирующая значение двух полей
+ *
+ * @param {object} fieldOne - первое поле
+ * @param {object} fieldTwo - второе поле
+ */
+const synchronizeItems = (fieldOne, fieldTwo) => {
+  const massive = [fieldOne, fieldTwo]
+  massive.forEach((field) => {
+    field.addEventListener('change', (evt) =>{
+      (evt.target === fieldTwo)
+        ? fieldOne.value = fieldTwo.value
+        : fieldTwo.value = fieldOne.value;
+    });
+  });
+};
+
+/**
+ * Функция определяющая минимальную цену за ночь в соответствии с типом жилья
+ *
+ * @param {string} value - значение поля 'тип жилья'
+ *
+ * @returns {number} - минимальная цена за ночь
+ */
+const detrmineMinPrice = (value) => {
+  switch (value) {
+    case 'bungalow':
+      return 0;
+    case 'flat':
+      return 1000;
+    case 'house':
+      return 5000;
+    case 'palace':
+      return 10000;
+  }
+};
 
 /**
  * Функция, показывающая сообщение об успешной отправке формы
@@ -90,6 +131,20 @@ const resetForm = () => {
  * Настройка кнопки сброса формы
  */
 addFormResetButton.addEventListener('click', () => resetForm());
+
+/**
+ * синхронизация полей из блока 'Время заезда и выезда'
+ */
+synchronizeItems(addFormTimeIn, addFormTimeOut);
+
+/**
+ * Обработчик событий поля 'Тип жилья' меняющий значение поля 'Цена за ночь'  в соответствии с выбраным типом жилья
+ */
+addFormTypeHousing.addEventListener('change', () => {
+  const minPrice = detrmineMinPrice(addFormTypeHousing.value);
+  addFormPricePerNight.setAttribute('min', minPrice);
+  addFormPricePerNight.setAttribute('placeholder', minPrice);
+});
 
 /**
  * Отправка данных на сервер по сабмиту
