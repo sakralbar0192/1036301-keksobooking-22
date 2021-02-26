@@ -97,7 +97,14 @@ addFormResetButton.addEventListener('click', () => resetForm());
 addForm.addEventListener('submit', (evt) => {
   evt.preventDefault();
   const formData = new FormData(evt.target);
-  sendData(formData, onSuccessSendFormMessage, onErrorSendFormMessage);
+  sendData(
+    formData,
+    () => {
+      onSuccessSendFormMessage(),
+      resetForm()
+    },
+    onErrorSendFormMessage,
+  );
 });
 
 export {resetForm, makeFormsInactive, makeFormsActive, addressField};

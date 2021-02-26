@@ -1,5 +1,3 @@
-import {resetForm} from './form.js';
-
 /**
  * отправляет GET запрос на сервер и обрабатывает данные
  *
@@ -31,7 +29,7 @@ const getData = (onSuccess, onError) => {
  * @param {function} onSuccess - функция, которая выполнится при ошибке отправки данных
  */
 const sendData = (data, onSuccess, onError) => {
-  fetch('https://22.javascript.pages.academy/keksobooking ',
+  fetch('https://22.javascript.pages.academy/keksobooking',
     {
       method: 'POST',
       headers:
@@ -44,7 +42,6 @@ const sendData = (data, onSuccess, onError) => {
     .then((response) => {
       if( response.ok) {
         onSuccess();
-        resetForm();
       }else{
         onError();
       }
