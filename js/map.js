@@ -1,17 +1,64 @@
 /* global  L:readonly */
-import {makePageActive} from './page.js';
-import {createOfferElement} from './offers.js';
+import {makeFormsActive} from './form.js';
+import {createPopupElement} from './popup.js';
 
-//Создаю карту с событием по загрузке, делающим формы активными
+/**
+ * Функция, создающая маркер
+ *
+ * @param {number} lat - координата маркера
+ * @param {number} lng - координата маркера
+ * @param {object} icoMarker - изображение маркера
+ * @param {boolean} draggable - возможность передвигать маркер
+ *
+ * @return {object} маркер с заданными параметрами
+ */
+const makeMarker = ( lat, lng, icoMarker, draggable) => {
+  const marker = L.marker(
+    {
+      lat: lat,
+      lng: lng,
+    },
+    {
+      draggable: draggable,
+      icon: icoMarker,
+    },
+  );
+  return marker;
+};
+
+/**
+ * Функция для создания нескольких обьявлений и добавления им попапов
+ *
+ * @param {object} massiveData - данные для формирования маркеров объявлений и их попапов
+ * @param {object} map - карта, на которую будут размещены сформированные маркеры
+ */
+const addOffersMarkers = (massiveData, map) => {
+  massiveData.forEach((value) => {
+    const marker = makeMarker(value.location.lat, value.location.lng, markerIco, false);
+    const popup = createPopupElement(value)
+    marker.bindPopup(popup,
+      {
+        keepInView: true,
+      },
+    );
+    marker.addTo(map);
+  });
+}
+
+/**
+ * Создание карты и добавление ей события по загрузке, которое делает формы активными
+ *
+ * @return {object}  карта с событием
+ */
 const initializeMap = () => {
   const map = L.map('map-canvas')
     .on('load',() => {
-      makePageActive();
+      makeFormsActive();
     })
     .setView({
       lat:35.681700,
       lng:139.753882,
-    }, 13)
+    }, 10)
 
   L.tileLayer(
     'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -22,7 +69,9 @@ const initializeMap = () => {
   return map;
 };
 
-//Добавляю иконки для разных маркеров
+/**
+ * Иконки для разных маркеров
+ */
 const markerIco = L.icon({
   iconUrl: '../img/pin.svg',
   iconSize: [40, 40],
@@ -35,38 +84,9 @@ const mainMarkerIcon = L.icon({
   iconAnchor: [26, 52],
 });
 
-//Функция, создающая маркер. параметр isMainIcoMarker нужен для определения типа иконки
-const makeMarker = (map, lat, lng, isMainIcoMarker, draggable) => {
-  let ico = markerIco;
-  if (isMainIcoMarker) {
-    ico = mainMarkerIcon
-  }
-  const marker = L.marker(
-    {
-      lat: lat,
-      lng: lng,
-    },
-    {
-      draggable: draggable,
-      icon: ico,
-    },
-  );
-  marker.addTo(map);
-  return marker;
-};
+/**
+ * Создание главного маркера.
+ */
+const mainMarker = makeMarker(35.68170, 139.75388, mainMarkerIcon, true);
 
-//Функция для создания нескольких обьявлений и добавления им попапов
-const addOffersMarkers = (massiveData, map) => {
-  massiveData.forEach((value) => {
-    const marker = makeMarker(map, value.location.x, value.location.y, false, false);
-    const popup = createOfferElement(value)
-    marker.bindPopup(popup,
-      {
-        keepInView: true,
-      },
-    );
-    marker.addTo(map);
-  });
-}
-
-export {initializeMap, makeMarker, addOffersMarkers}
+export {initializeMap, addOffersMarkers, mainMarker}

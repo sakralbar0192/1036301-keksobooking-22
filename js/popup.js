@@ -1,13 +1,15 @@
-import {makeRusType} from './data.js';
-import {makeElement} from './util.js'
+import {createElement, makeRusType} from './util.js'
 
 const offerTemplate = document.querySelector('#card').content.querySelector('.popup')
 
-//Функция, создающая шаблонную разметку для одного элемента.
-const createOfferElement = ({author,location, offer}) => {
+/**
+ *
+ * @param {object} param0 - объект с данными, необходимыми для формирования попапа
+ */
+const createPopupElement = ({author, offer}) => {
   const offerElement = offerTemplate.cloneNode(true);
   offerElement.querySelector('.popup__title').textContent = offer.title;
-  offerElement.querySelector('.popup__text--address').textContent = location.x + ', ' + location.y;
+  offerElement.querySelector('.popup__text--address').textContent = offer.address;
   offerElement.querySelector('.popup__text--price').textContent = offer.price + ' ₽/ночь';
   offerElement.querySelector('.popup__type').textContent = makeRusType(offer.type)
   offerElement.querySelector('.popup__text--capacity').textContent = offer.rooms + ' комнаты для ' + offer.guests + ' гостей'
@@ -21,21 +23,21 @@ const createOfferElement = ({author,location, offer}) => {
   return offerElement;
 };
 
-//Функция, создающая шаблонную разметку для нескольких элементов.
-const createOffersElements = (massive) => {
-  const offersFragment = document.createDocumentFragment();
-  massive.forEach((value) => {
-    const offer = createOfferElement(value);
-    offersFragment.appendChild(offer);
-  });
-  return offersFragment;
-}
-
-//функция, создающая наполнение для блоков-контейнеров popup__features и popup__photos
+/**
+ * Функция, создающая наполнение для блоков-контейнеров popup__features и popup__photos
+ *
+ * @param {Array} valueMassive
+ * @param {string} elementTag
+ * @param {string} elementClass
+ * @param {boolean} isFeature
+ * @param {boolean} isOfferPhoto
+ *
+ * @return {DocumentFragment} фрагмент документа с разметкой для блоков контейнеров
+ */
 const fillElement = (valueMassive, elementTag, elementClass, isFeature, isOfferPhoto) => {
   const elementsContainer = document.createDocumentFragment();
   valueMassive.forEach((value) => {
-    const elementsListItem = makeElement(elementTag, elementClass);
+    const elementsListItem = createElement(elementTag, elementClass);
     if (isFeature) {
       elementsListItem.classList.add('popup__feature--'+ value);
     }
@@ -50,4 +52,4 @@ const fillElement = (valueMassive, elementTag, elementClass, isFeature, isOfferP
   return elementsContainer;
 };
 
-export {createOffersElements, createOfferElement};
+export {createPopupElement};

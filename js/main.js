@@ -1,27 +1,37 @@
-import {getMassiveData} from './data.js';
-//import {createOffersElements} from './offers.js';
-import {makePageInactive} from './page.js';
-import {initializeMap, makeMarker, addOffersMarkers} from './map.js';
+import {initializeMap, mainMarker} from './map.js';
+import {setSimilarOffersMarkers} from './api.js';
+import {makeFormsInactive, addressField} from './form.js';
 
-//Делаю формы неактивными до инициализации карты
-makePageInactive();
+/**
+ * Делает формы неактивными до инициализации карты.
+ */
+makeFormsInactive();
 
-//Инициализирую карту и делаю формы активными
+/**
+ * Инициализирует карту и делаю формы активными.
+ */
 const map = initializeMap();
 
-//Создаю главный маркер
-const mainMarker = makeMarker(map, 35.681700, 139.753882, true, true);
+/**
+ * Добавляет главный маркер.
+ */
+mainMarker.addTo(map);
 
-//Передаю координаты главного маркера в поле 'Адрес' и делаю его недоступным для ручного редактирования
-const addressField = document.querySelector('#address');
+/**
+ * Передает координаты главного маркера в поле 'Адрес' добавляет полю 'Адрес' аттрибут disabled.
+ */
 addressField.setAttribute('disabled', 'disabled');
 addressField.value = mainMarker.getLatLng().lat.toFixed(5) + ', '  + mainMarker.getLatLng().lng.toFixed(5);
 
-//Синхронизирую изменения координат главного маркера с данными в поле 'Адрес'
+/**
+ * Синхронизирует изменения координат главного маркера с данными в поле 'Адрес'ю
+ */
 mainMarker.on('moveend', (evt) => {
   const position = evt.target.getLatLng()
   addressField.value = position.lat.toFixed(5) + ', ' + position.lng.toFixed(5);
 });
 
-//Создаю на карте метки объявлений со всплывающими попапами
-addOffersMarkers(getMassiveData(), map);
+/**
+ * Делает запрос на сервер и создает на карте метки объявлений со всплывающими попапамию
+ */
+setSimilarOffersMarkers(map);
