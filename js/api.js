@@ -29,7 +29,7 @@ const getData = (onSuccess, onError) => {
  * @param {function} onSuccess - функция, которая выполнится при ошибке отправки данных
  */
 const sendData = (data, onSuccess, onError) => {
-  fetch('https://22.javascript.pages.academy/keksobooking',
+  fetch('https://jsonplaceholder.typicode.com/posts/',
     {
       method: 'POST',
       headers:
