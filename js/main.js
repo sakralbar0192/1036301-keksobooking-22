@@ -19,11 +19,10 @@ const map = initializeMap();
 mainMarker.addTo(map);
 
 /**
- * Передает координаты главного маркера в поле 'Адрес' добавляет полю 'Адрес' аттрибут disabled.
- */
-addressField.setAttribute('disabled', 'disabled');
-addressField.value = mainMarker.getLatLng().lat.toFixed(5) + ', '  + mainMarker.getLatLng().lng.toFixed(5);
+ * Передает координаты главного маркера в поле 'Адрес'. */
 
+addressField.value = mainMarker.getLatLng().lat.toFixed(5) + ', '  + mainMarker.getLatLng().lng.toFixed(5);
+addressField.setAttribute('readonly', 'readonly');
 /**
  * Синхронизирует изменения координат главного маркера с данными в поле 'Адрес'ю
  */

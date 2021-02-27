@@ -9,24 +9,41 @@ const addFormTypeHousing = addForm.querySelector('#type');
 const addFormPricePerNight = addForm.querySelector('#price');
 const addFormTimeIn = addForm.querySelector('#timein');
 const addFormTimeOut = addForm.querySelector('#timeout');
+const addFormRoomNumber = addForm.querySelector('#room_number');
+const addFormCapacity = addForm.querySelector('#capacity');
+const addFormTitle = addForm.querySelector('#title');
 const mapFiltersForm = document.querySelector('.map__filters');
 const mapFiltersFormSelects = mapFiltersForm.children;
 
 /**
- * Функция синхронизирующая значение двух полей
+ * Функция определяющая значения поля "Количество мест" в зависимости от поля  "Количество комнат"
  *
- * @param {object} fieldOne - первое поле
- * @param {object} fieldTwo - второе поле
+ * @param {object} value - значение, которое принимает поле "Количество комнат"
+ *
+ * @returns {Array} значения, которые может принимать поле "Количество мест"
  */
-const synchronizeItems = (fieldOne, fieldTwo) => {
-  const massive = [fieldOne, fieldTwo]
-  massive.forEach((field) => {
-    field.addEventListener('change', (evt) =>{
-      (evt.target === fieldTwo)
-        ? fieldOne.value = fieldTwo.value
-        : fieldTwo.value = fieldOne.value;
-    });
-  });
+const checkCapacity = (value) => {
+  switch (value) {
+    case '100':
+      return [
+        '0',
+      ];
+    case '3':
+      return [
+        '3',
+        '2',
+        '1',
+      ];
+    case '2':
+      return [
+        '2',
+        '1',
+      ];
+    case '1':
+      return [
+        '1',
+      ];
+  }
 };
 
 /**
@@ -47,6 +64,46 @@ const detrmineMinPrice = (value) => {
     case 'palace':
       return 10000;
   }
+};
+
+/**
+ * Функция реализующая логику валидации и взаимодействия полей "Количество комнат" и "Количество мест"
+ *
+ * @param {object} fieldOne  - поле, от которого зависят значения поля 2
+ * @param {object} fieldTwo  - поле, значения которого зависят от поля 1
+ */
+const validationCompliance = (fieldOne, fieldTwo) => {
+  const fields = [fieldOne, fieldTwo];
+  fields.forEach((field) => {
+    field.addEventListener('change', () => {
+      const allowedValues = checkCapacity(fieldOne.value);
+      if (allowedValues.some((value) => {
+        return value === fieldTwo.value
+      })) {
+        fieldTwo.setCustomValidity('')
+      }else {
+        fieldTwo.setCustomValidity('Неподходящее значение')
+      }
+      fieldTwo.reportValidity();
+    })
+  })
+};
+
+/**
+ * Функция синхронизирующая два поля и делающая их значения одинаковыми при изменении одного из них
+ *
+ * @param {object} fieldOne - первое поле
+ * @param {object} fieldTwo - второе поле
+ */
+const synchronizeField = (fieldOne, fieldTwo) => {
+  const massive = [fieldOne, fieldTwo]
+  massive.forEach((field) => {
+    field.addEventListener('change', (evt) =>{
+      (evt.target === fieldTwo)
+        ? fieldOne.value = fieldTwo.value
+        : fieldTwo.value = fieldOne.value;
+    });
+  });
 };
 
 /**
@@ -121,9 +178,6 @@ const resetForm = () => {
       35.68170,
       139.75388,
     ]);
-  //Сет таймаут применен для того, чтобы присвоение значений маркера происходило в самую последнюю очередь,
-  //странным образом, если его убрать - то поле остается пустым, в отладчике видно, что после выполнения строки
-  //с присвоением значений снова выполняется строка со сбросом формы
   setTimeout(() => {addressField.value = mainMarker.getLatLng().lat.toFixed(5) + ', '  + mainMarker.getLatLng().lng.toFixed(5);} , 0);
 }
 
@@ -135,15 +189,58 @@ addFormResetButton.addEventListener('click', () => resetForm());
 /**
  * синхронизация полей из блока 'Время заезда и выезда'
  */
-synchronizeItems(addFormTimeIn, addFormTimeOut);
+synchronizeField(addFormTimeIn, addFormTimeOut);
 
 /**
- * Обработчик событий поля 'Тип жилья' меняющий значение поля 'Цена за ночь'  в соответствии с выбраным типом жилья
+ * Реализация логики валидации и взаимодействия полей "Количество комнат" и "Количество мест"
+ */
+validationCompliance(addFormRoomNumber, addFormCapacity);
+
+/**
+ * Валидация "на лету" поля "Заголовок объявления"
+ */
+addFormTitle.addEventListener('input', () => {
+  const valueLength = addFormTitle.value.length;
+  const minLength = addFormTitle.getAttribute('minlength');
+  const maxLength = addFormTitle.getAttribute('maxlength');
+  if (valueLength < minLength) {
+    addFormTitle.setCustomValidity('Еще ' + (minLength - valueLength) + ' символов');
+  }else if (valueLength > maxLength) {
+    addFormTitle.setCustomValidity('Удалите ' + (valueLength - maxLength) + ' символов');
+  }else {
+    addFormTitle.setCustomValidity('');
+  }
+  addFormTitle.reportValidity();
+});
+
+/**
+ * Валидатор и обработчик событий поля 'Цена за ночь', проверяющий введенные данные на соответствие ожидаемым
+ */
+addFormPricePerNight.addEventListener('input', () => {
+  const minPrice = detrmineMinPrice(addFormTypeHousing.value);
+  addFormPricePerNight.setAttribute('min', minPrice);
+  if (addFormPricePerNight.value) {
+    (addFormPricePerNight.value < minPrice)
+      ? addFormPricePerNight.setCustomValidity('Цена за указанный тип жилья не может быть ниже ' + minPrice)
+      : addFormPricePerNight.setCustomValidity('');
+    addFormPricePerNight.reportValidity();
+  }
+});
+
+/**
+ * Обработчик событий поля 'Тип жилья' меняющий минимальное значение и плэйсхолдер поля 'Цена за ночь'
+ * в соответствии с выбраным типом жилья, а так же валидирующий поле 'Цена за ночь'
  */
 addFormTypeHousing.addEventListener('change', () => {
   const minPrice = detrmineMinPrice(addFormTypeHousing.value);
   addFormPricePerNight.setAttribute('min', minPrice);
   addFormPricePerNight.setAttribute('placeholder', minPrice);
+  if (addFormPricePerNight.value) {
+    (addFormPricePerNight.value < minPrice)
+      ? addFormPricePerNight.setCustomValidity('Цена за указанный тип жилья не может быть ниже ' + minPrice)
+      : addFormPricePerNight.setCustomValidity('');
+    addFormPricePerNight.reportValidity();
+  }
 });
 
 /**
