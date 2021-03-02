@@ -1,7 +1,7 @@
 /* global  L:readonly */
-import {makeFormsActive} from './form.js';
 import {createPopupElement} from './popup.js';
 
+let offersMarkers = [];
 /**
  * Функция, создающая маркер
  *
@@ -31,9 +31,17 @@ const makeMarker = ( lat, lng, icoMarker, draggable) => {
  *
  * @param {object} massiveData - данные для формирования маркеров объявлений и их попапов
  * @param {object} map - карта, на которую будут размещены сформированные маркеры
+ * @param {numder} numberRenderedOffers - количество отрисовываемых предложений
  */
-const addOffersMarkers = (massiveData, map) => {
-  massiveData.forEach((value) => {
+const renderOffersMarkers = (massiveData, map, numberRenderedOffers) => {
+  if (offersMarkers) {
+    offersMarkers.forEach((marker) => {
+      marker.remove();
+    })
+    offersMarkers =[];
+  }
+  const renderedData =  massiveData.slice(0,numberRenderedOffers);
+  renderedData.forEach((value) => {
     const marker = makeMarker(value.location.lat, value.location.lng, markerIco, false);
     const popup = createPopupElement(value)
     marker.bindPopup(popup,
@@ -41,8 +49,12 @@ const addOffersMarkers = (massiveData, map) => {
         keepInView: true,
       },
     );
-    marker.addTo(map);
+    offersMarkers.push(marker);
   });
+  offersMarkers.forEach((marker) => {
+    marker.addTo(map);
+  })
+  return offersMarkers;
 }
 
 /**
@@ -50,10 +62,10 @@ const addOffersMarkers = (massiveData, map) => {
  *
  * @return {object}  карта с событием
  */
-const initializeMap = () => {
+const initializeMap = (onLoad) => {
   const map = L.map('map-canvas')
     .on('load',() => {
-      makeFormsActive();
+      onLoad();
     })
     .setView({
       lat:35.681700,
@@ -89,4 +101,4 @@ const mainMarkerIcon = L.icon({
  */
 const mainMarker = makeMarker(35.68170, 139.75388, mainMarkerIcon, true);
 
-export {initializeMap, addOffersMarkers, mainMarker}
+export {initializeMap, renderOffersMarkers, mainMarker}

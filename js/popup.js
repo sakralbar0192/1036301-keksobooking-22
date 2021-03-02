@@ -87,4 +87,4 @@ const createPopupElement = ({author, offer}) => {
   return offerElement;
 };
 
-export {createPopupElement};
+export {createPopupElement, makeRusType};

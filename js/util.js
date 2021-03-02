@@ -64,4 +64,30 @@ const showAlert = (alertShowTime) => {
   }, alertShowTime);
 };
 
-export {getRandomNumber, createElement, showAlert};
+/**
+ * Функция делает форму неактивной и добавляет атрибут disabled внутренним полям
+ *
+ * @param {object} form - форма, которую необходимо сделать неактивной
+ * @param {string} - класс формы
+ */
+const makeFormInactive = (form, formClass) => {
+  form.classList.add(formClass + '--disabled');
+  Array.from(form.children).forEach((value) => {
+    value.setAttribute('disabled', 'disabled');
+  });
+};
+
+/**
+ * Функция делает форму активной и добавляет атрибут disabled внутренним полям
+ *
+ * @param {object} form - форма, которую необходимо сделать активной
+ * @param {string} - класс формы
+ */
+const makeFormActive = (form, formClass) => {
+  form.classList.remove(formClass + '--disabled');
+  Array.from(form.children).forEach((value) => {
+    value.removeAttribute('disabled');
+  });
+};
+
+export {getRandomNumber, createElement, showAlert, makeFormInactive, makeFormActive};

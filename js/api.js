@@ -1,3 +1,5 @@
+const MESSAGE_DISPLAY_TIME = 2000;
+
 /**
  * отправляет GET запрос на сервер и обрабатывает данные
  *
@@ -8,17 +10,17 @@
 const getData = (onSuccess, onError) => {
   fetch('https://22.javascript.pages.academy/keksobooking/data')
     .then((response) => {
-      if (response.ok) {
+      if (response.status === 200) {
         return response.json();
       }else {
-        onError(2000);
+        onError(MESSAGE_DISPLAY_TIME);
       }
     })
     .then((data) => {
       onSuccess(data);
     }).
     catch(() => {
-      onError(2000);
+      onError(MESSAGE_DISPLAY_TIME);
     });
 }
 /**
@@ -29,7 +31,7 @@ const getData = (onSuccess, onError) => {
  * @param {function} onSuccess - функция, которая выполнится при ошибке отправки данных
  */
 const sendData = (data, onSuccess, onError) => {
-  fetch('https://jsonplaceholder.typicode.com/posts/',
+  fetch('https://22.javascript.pages.academy/keksobooking/data',
     {
       method: 'POST',
       headers:

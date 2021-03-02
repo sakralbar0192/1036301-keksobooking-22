@@ -1,17 +1,24 @@
-import {initializeMap, addOffersMarkers, mainMarker} from './map.js';
+import {initializeMap, renderOffersMarkers, mainMarker} from './map.js';
 import {getData} from './api.js';
-import {makeFormsInactive, addressField} from './form.js';
-import {showAlert} from './util.js';
+import {addressField, addForm} from './form.js';
+import {mapFiltersForm, setFiltering} from './map-filtering-form.js';
+import {makeFormInactive, makeFormActive, showAlert} from './util.js';
+
+const NUMBERS_OF_RENDERED_OFFERS = 10;
 
 /**
  * Делает формы неактивными до инициализации карты.
  */
-makeFormsInactive();
+makeFormInactive(mapFiltersForm, '.map__filters');
+makeFormInactive(addForm, '.ad-form');
+
 
 /**
- * Инициализирует карту и делаю формы активными.
+ * Инициализирует карту и делает формы активными при успешной загрузке.
  */
-const map = initializeMap();
+const map = initializeMap(()=>{
+  makeFormActive(addForm, '.ad-form')
+});
 
 /**
  * Добавляет главный маркер.
@@ -19,12 +26,13 @@ const map = initializeMap();
 mainMarker.addTo(map);
 
 /**
- * Передает координаты главного маркера в поле 'Адрес'. */
-
+ * Передает координаты главного маркера в поле 'Адрес'.
+ */
 addressField.value = mainMarker.getLatLng().lat.toFixed(5) + ', '  + mainMarker.getLatLng().lng.toFixed(5);
 addressField.setAttribute('readonly', 'readonly');
+
 /**
- * Синхронизирует изменения координат главного маркера с данными в поле 'Адрес'ю
+ * Синхронизирует изменения координат главного маркера с данными в поле 'Адрес'
  */
 mainMarker.on('moveend', (evt) => {
   const position = evt.target.getLatLng()
@@ -32,11 +40,15 @@ mainMarker.on('moveend', (evt) => {
 });
 
 /**
- * Делает запрос на сервер и создает на карте метки объявлений со всплывающими попапами
+ * Делает запрос на сервер, создает на карте метки объявлений со всплывающими попапами, фильтрует попапы
  */
 getData(
   (data) => {
-    addOffersMarkers(data,map)
+    renderOffersMarkers(data, map, NUMBERS_OF_RENDERED_OFFERS);
+    makeFormActive(mapFiltersForm, '.map__filters');
+    setFiltering(data, (filteredData)=> {
+      renderOffersMarkers(filteredData, map, NUMBERS_OF_RENDERED_OFFERS)
+    });
   },
   showAlert,
-);
+)

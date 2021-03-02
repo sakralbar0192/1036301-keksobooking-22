@@ -4,7 +4,6 @@ import {mainMarker} from './map.js';
 const addForm = document.querySelector('.ad-form');
 const addressField = addForm.querySelector('#address');
 const addFormResetButton = addForm.querySelector('.ad-form__reset');
-const addFormFieldsets = addForm.querySelectorAll('.ad-form__element');
 const addFormTypeHousing = addForm.querySelector('#type');
 const addFormPricePerNight = addForm.querySelector('#price');
 const addFormTimeIn = addForm.querySelector('#timein');
@@ -12,8 +11,6 @@ const addFormTimeOut = addForm.querySelector('#timeout');
 const addFormRoomNumber = addForm.querySelector('#room_number');
 const addFormCapacity = addForm.querySelector('#capacity');
 const addFormTitle = addForm.querySelector('#title');
-const mapFiltersForm = document.querySelector('.map__filters');
-const mapFiltersFormSelects = mapFiltersForm.children;
 
 /**
  * Функция определяющая значения поля "Количество мест" в зависимости от поля  "Количество комнат"
@@ -53,7 +50,7 @@ const checkCapacity = (value) => {
  *
  * @returns {number} - минимальная цена за ночь
  */
-const detrmineMinPrice = (value) => {
+const defineMinPrice = (value) => {
   switch (value) {
     case 'bungalow':
       return 0;
@@ -107,6 +104,53 @@ const synchronizeField = (fieldOne, fieldTwo) => {
 };
 
 /**
+ * Валидация "на лету" поля "Заголовок объявления"
+ */
+addFormTitle.addEventListener('input', () => {
+  const valueLength = addFormTitle.value.length;
+  const minLength = addFormTitle.getAttribute('minlength');
+  const maxLength = addFormTitle.getAttribute('maxlength');
+  if (valueLength < minLength) {
+    addFormTitle.setCustomValidity('Еще ' + (minLength - valueLength) + ' символов');
+  }else if (valueLength > maxLength) {
+    addFormTitle.setCustomValidity('Удалите ' + (valueLength - maxLength) + ' символов');
+  }else {
+    addFormTitle.setCustomValidity('');
+  }
+  addFormTitle.reportValidity();
+});
+
+/**
+ * Валидатор и обработчик событий поля 'Цена за ночь', проверяющий введенные данные на соответствие ожидаемым
+ */
+addFormPricePerNight.addEventListener('input', () => {
+  const minPrice = defineMinPrice(addFormTypeHousing.value);
+  addFormPricePerNight.setAttribute('min', minPrice);
+  if (addFormPricePerNight.value) {
+    (addFormPricePerNight.value < minPrice)
+      ? addFormPricePerNight.setCustomValidity('Цена за указанный тип жилья не может быть ниже ' + minPrice)
+      : addFormPricePerNight.setCustomValidity('');
+    addFormPricePerNight.reportValidity();
+  }
+});
+
+/**
+ * Обработчик событий поля 'Тип жилья' меняющий минимальное значение и плэйсхолдер поля 'Цена за ночь'
+ * в соответствии с выбраным типом жилья, а так же валидирующий поле 'Цена за ночь'
+ */
+addFormTypeHousing.addEventListener('change', () => {
+  const minPrice = defineMinPrice(addFormTypeHousing.value);
+  addFormPricePerNight.setAttribute('min', minPrice);
+  addFormPricePerNight.setAttribute('placeholder', minPrice);
+  if (addFormPricePerNight.value) {
+    (addFormPricePerNight.value < minPrice)
+      ? addFormPricePerNight.setCustomValidity('Цена за указанный тип жилья не может быть ниже ' + minPrice)
+      : addFormPricePerNight.setCustomValidity('');
+    addFormPricePerNight.reportValidity();
+  }
+});
+
+/**
  * Функция, показывающая сообщение об успешной отправке формы
  */
 const onSuccessSendFormMessage = () => {
@@ -141,35 +185,7 @@ const onErrorSendFormMessage = () => {
 };
 
 /**
- * Функция делает формы addForm и mapFiltersForm неактивными и добавляет атрибут disabled внутренним полям
- */
-const makeFormsInactive = () => {
-  addForm.classList.add('ad-form--disabled');
-  addFormFieldsets.forEach((value) => {
-    value.setAttribute('disabled', 'disabled');
-  });
-  mapFiltersForm.classList.add('.map__filters--disabled');
-  Array.from(mapFiltersFormSelects).forEach((value) => {
-    value.setAttribute('disabled', 'disabled');
-  });
-};
-
-/**
- * Функция делает формы addForm и mapFiltersForm активными и убирает атрибут disabled у внутренних полей
- */
-const makeFormsActive = () => {
-  addForm.classList.remove('ad-form--disabled');
-  addFormFieldsets.forEach((value) => {
-    value.removeAttribute('disabled');
-  });
-  mapFiltersForm.classList.remove('.map__filters--disabled');
-  Array.from(mapFiltersFormSelects).forEach((value) => {
-    value.removeAttribute('disabled');
-  });
-}
-
-/**
- * Функция сбрасывает поля форм и возвращает маркер и значение поля Адрес в значение по-умолчанию
+ * Функция сбрасывает поля форм, а так же возвращает главный маркер и значение поля Адрес в значение по-умолчанию
  */
 const resetForm = () => {
   addForm.reset();
@@ -182,11 +198,6 @@ const resetForm = () => {
 }
 
 /**
- * Настройка кнопки сброса формы
- */
-addFormResetButton.addEventListener('click', () => resetForm());
-
-/**
  * синхронизация полей из блока 'Время заезда и выезда'
  */
 synchronizeField(addFormTimeIn, addFormTimeOut);
@@ -197,51 +208,9 @@ synchronizeField(addFormTimeIn, addFormTimeOut);
 validationCompliance(addFormRoomNumber, addFormCapacity);
 
 /**
- * Валидация "на лету" поля "Заголовок объявления"
+ * Настройка кнопки сброса формы
  */
-addFormTitle.addEventListener('input', () => {
-  const valueLength = addFormTitle.value.length;
-  const minLength = addFormTitle.getAttribute('minlength');
-  const maxLength = addFormTitle.getAttribute('maxlength');
-  if (valueLength < minLength) {
-    addFormTitle.setCustomValidity('Еще ' + (minLength - valueLength) + ' символов');
-  }else if (valueLength > maxLength) {
-    addFormTitle.setCustomValidity('Удалите ' + (valueLength - maxLength) + ' символов');
-  }else {
-    addFormTitle.setCustomValidity('');
-  }
-  addFormTitle.reportValidity();
-});
-
-/**
- * Валидатор и обработчик событий поля 'Цена за ночь', проверяющий введенные данные на соответствие ожидаемым
- */
-addFormPricePerNight.addEventListener('input', () => {
-  const minPrice = detrmineMinPrice(addFormTypeHousing.value);
-  addFormPricePerNight.setAttribute('min', minPrice);
-  if (addFormPricePerNight.value) {
-    (addFormPricePerNight.value < minPrice)
-      ? addFormPricePerNight.setCustomValidity('Цена за указанный тип жилья не может быть ниже ' + minPrice)
-      : addFormPricePerNight.setCustomValidity('');
-    addFormPricePerNight.reportValidity();
-  }
-});
-
-/**
- * Обработчик событий поля 'Тип жилья' меняющий минимальное значение и плэйсхолдер поля 'Цена за ночь'
- * в соответствии с выбраным типом жилья, а так же валидирующий поле 'Цена за ночь'
- */
-addFormTypeHousing.addEventListener('change', () => {
-  const minPrice = detrmineMinPrice(addFormTypeHousing.value);
-  addFormPricePerNight.setAttribute('min', minPrice);
-  addFormPricePerNight.setAttribute('placeholder', minPrice);
-  if (addFormPricePerNight.value) {
-    (addFormPricePerNight.value < minPrice)
-      ? addFormPricePerNight.setCustomValidity('Цена за указанный тип жилья не может быть ниже ' + minPrice)
-      : addFormPricePerNight.setCustomValidity('');
-    addFormPricePerNight.reportValidity();
-  }
-});
+addFormResetButton.addEventListener('click', () => resetForm());
 
 /**
  * Отправка данных на сервер по сабмиту
@@ -259,4 +228,4 @@ addForm.addEventListener('submit', (evt) => {
   );
 });
 
-export {resetForm, makeFormsInactive, makeFormsActive, addressField};
+export {resetForm, addressField, addForm};
