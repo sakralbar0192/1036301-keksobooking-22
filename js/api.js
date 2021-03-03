@@ -8,17 +8,17 @@
 const getData = (onSuccess, onError) => {
   fetch('https://22.javascript.pages.academy/keksobooking/data')
     .then((response) => {
-      if (response.ok) {
+      if (response.status === 200) {
         return response.json();
       }else {
-        onError(2000);
+        throw new Error('Не удалось получить данные');
       }
     })
     .then((data) => {
       onSuccess(data);
     }).
-    catch(() => {
-      onError(2000);
+    catch((error) => {
+      onError(error)
     });
 }
 /**
@@ -29,7 +29,7 @@ const getData = (onSuccess, onError) => {
  * @param {function} onSuccess - функция, которая выполнится при ошибке отправки данных
  */
 const sendData = (data, onSuccess, onError) => {
-  fetch('https://22.javascript.pages.academy/keksobooking',
+  fetch('https://22.javascript.pages.academy/keksobooking/data',
     {
       method: 'POST',
       headers:

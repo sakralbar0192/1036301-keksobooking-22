@@ -1,6 +1,8 @@
-import {initializeMap, addOffersMarkers, mainMarker} from './map.js';
-import {getData} from './api.js';
-import {makeFormsInactive, addressField} from './form.js';
+import {makeFormsInactive, makeAddFormActive, configureAddForm, setAddressFieldValue, makeMapFiltersFormActive} from './form.js';
+import {initializeMap, createMainMarker, renderOffersMarkers, mainMarker} from './map.js';
+import {getData, sendData} from './api.js';
+import {createPopupElement} from './popup.js';
+import {setFiltering} from './map-filtering-form.js';
 import {showAlert} from './util.js';
 
 /**
@@ -9,35 +11,31 @@ import {showAlert} from './util.js';
 makeFormsInactive();
 
 /**
- * Инициализирует карту и делаю формы активными.
+ * Инициализирует карту и делает формы активными при успешной загрузке.
  */
-const map = initializeMap();
+initializeMap(makeAddFormActive);
 
 /**
- * Добавляет главный маркер.
+ * Добавляет главный маркер и синхронизирует поле 'Адрес' со значениями позиции главного маркера.
  */
-mainMarker.addTo(map);
+createMainMarker(setAddressFieldValue);
 
 /**
- * Передает координаты главного маркера в поле 'Адрес' добавляет полю 'Адрес' аттрибут disabled.
+ * Настраивает форму добавления нового объявления
  */
-addressField.setAttribute('disabled', 'disabled');
-addressField.value = mainMarker.getLatLng().lat.toFixed(5) + ', '  + mainMarker.getLatLng().lng.toFixed(5);
+configureAddForm(mainMarker, sendData);
 
 /**
- * Синхронизирует изменения координат главного маркера с данными в поле 'Адрес'ю
- */
-mainMarker.on('moveend', (evt) => {
-  const position = evt.target.getLatLng()
-  addressField.value = position.lat.toFixed(5) + ', ' + position.lng.toFixed(5);
-});
-
-/**
- * Делает запрос на сервер и создает на карте метки объявлений со всплывающими попапами
+ * Делает запрос на сервер, создает на карте метки объявлений со всплывающими попапами,
+ * активирует форму с фильтрами и позволяет фильтровать объявления
  */
 getData(
   (data) => {
-    addOffersMarkers(data,map)
+    renderOffersMarkers(data, createPopupElement);
+    makeMapFiltersFormActive();
+    setFiltering(data, (filteredData) => {
+      renderOffersMarkers(filteredData, createPopupElement);
+    });
   },
   showAlert,
 );

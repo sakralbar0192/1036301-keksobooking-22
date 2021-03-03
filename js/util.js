@@ -1,3 +1,4 @@
+const ALERT_SHOW_TIME = 2000 //Время показа сообщения об ошибке
 /**
  * Функция, создающая случайное число в указанном интервале с указанной точностью
  *
@@ -43,7 +44,7 @@ const createElement = (tagName, className, text) => {
  *
  * * @param {number} alertShowTime  - время показа в милисекундах
  */
-const showAlert = (alertShowTime) => {
+const showAlert = (message) => {
   const alertContainer = document.createElement('div');
   alertContainer.style.zIndex = 100;
   alertContainer.style.position = 'absolute';
@@ -55,13 +56,15 @@ const showAlert = (alertShowTime) => {
   alertContainer.style.textAlign = 'center';
   alertContainer.style.backgroundColor = 'red';
 
-  alertContainer.textContent = 'Произошла ошибка!';
+  alertContainer.textContent = message;
 
   document.body.append(alertContainer);
 
   setTimeout(() => {
     alertContainer.remove();
-  }, alertShowTime);
+  }, ALERT_SHOW_TIME);
 };
+
+
 
 export {getRandomNumber, createElement, showAlert};
