@@ -1,5 +1,3 @@
-const MESSAGE_DISPLAY_TIME = 2000;
-
 /**
  * отправляет GET запрос на сервер и обрабатывает данные
  *
@@ -13,14 +11,14 @@ const getData = (onSuccess, onError) => {
       if (response.status === 200) {
         return response.json();
       }else {
-        onError(MESSAGE_DISPLAY_TIME);
+        throw new Error('Не удалось получить данные');
       }
     })
     .then((data) => {
       onSuccess(data);
     }).
-    catch(() => {
-      onError(MESSAGE_DISPLAY_TIME);
+    catch((error) => {
+      onError(error)
     });
 }
 /**

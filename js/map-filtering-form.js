@@ -16,14 +16,29 @@ const mapCheckboxes = mapFiltersForm.querySelectorAll('.map__checkbox');
 const filterByHousingType = (data) => {
   const currentValue = housingTypeFilter.value;
   let filteredData = [];
-  (currentValue != 'any')
-    ? filteredData = data.filter((object) => {
-      return object.offer.type === currentValue;
-    })
-    : filteredData = data;
+  filteredData = data.filter((object) => {
+    return object.offer.type === currentValue;
+  })
   return filteredData;
 };
 
+/**
+ * Функция определяет ценовой интервал по которому произойдет сортировка
+ *
+ * @param {number} value - значение которое будет проходить проверку на принадлежностиь интервалу при сортировке
+ *
+ * @returns выражение для проверки принадлежности значения интервалу
+ */
+const determinePriceInterval = (value) => {
+  switch (housingPriceFilter.value) {
+    case 'low':
+      return value <= 10000;
+    case 'middle':
+      return value > 10000 && value <= 50000;
+    case 'high':
+      return value >= 50000;
+  }
+}
 /**
  * Функция фильтрует полученные данные по  цене за ночь
  *
@@ -32,23 +47,10 @@ const filterByHousingType = (data) => {
  * @returns {bject} filtredData - отфильтрованные данные
  */
 const filterByHousingPrice = (data) => {
-  const currentValue = housingPriceFilter.value;
   let filteredData = [];
-  if (currentValue === 'low') {
-    filteredData = data.filter((object) => {
-      return object.offer.price <= 10000;
-    });
-  }else if (currentValue === 'middle') {
-    filteredData = data.filter((object) => {
-      return object.offer.price > 10000 && object.offer.price < 50000;
-    });
-  }else if (currentValue === 'high') {
-    filteredData = data.filter((object) => {
-      return object.offer.price >= 50000;
-    });
-  } else {
-    filteredData = data;
-  }
+  filteredData = data.filter((object) => {
+    return determinePriceInterval(object.offer.price);
+  });
   return filteredData;
 };
 
@@ -62,13 +64,29 @@ const filterByHousingPrice = (data) => {
 const filterByHousingRooms = (data) => {
   const currentValue = housingRoomsFilter.value;
   let filteredData = [];
-  (currentValue != 'any')
-    ? filteredData = data.filter((object) => {
-      return object.offer.rooms.toString() === currentValue;
-    })
-    : filteredData = data;
+  filteredData = data.filter((object) => {
+    return object.offer.rooms.toString() === currentValue;
+  })
   return filteredData;
-}
+};
+
+/**
+ * Функция определяет вместимость по которой произойдет сортировка
+ *
+ * @param {number} value - значение которое будет проходить проверку при сортировке
+ *
+ * @returns выражение для проверки принадлежности значения интервалу
+ */
+const determineCapacity = (value) => {
+  switch (housingQuestsFilter.value) {
+    case '0':
+      return value > 2;
+    case '1':
+      return value === 1;
+    case '2':
+      return value === 2;
+  }
+};
 
 /**
  * Функция фильтрует полученные данные по колучеству гостей
@@ -78,23 +96,10 @@ const filterByHousingRooms = (data) => {
  * @returns {bject} filtredData - отфильтрованные данные
  */
 const filterByHousingGuests = (data) => {
-  const currentValue = housingQuestsFilter.value;
   let filteredData = [];
-  if (currentValue === 'any') {
-    filteredData = data;
-  }else if (currentValue === '0') {
-    filteredData = data.filter((object) => {
-      return object.offer.guests > 2;
-    })
-  }else if (currentValue === '1') {
-    filteredData = data.filter((object) => {
-      return object.offer.guests === 1;
-    })
-  }else if (currentValue === '2') {
-    filteredData = data.filter((object) => {
-      return object.offer.guests === 2;
-    })
-  }
+  filteredData = data.filter((object) => {
+    return determineCapacity(object.offer.guests);
+  })
   return filteredData;
 }
 
@@ -109,9 +114,8 @@ const filterByAdditionalFeatures = (data) => {
   mapCheckboxes.forEach((checkbox) => {
     if (checkbox.checked) {
       data = data.filter((object) => {
-        return object.offer.features.some((value) => {
-          return value === checkbox.value;
-        })
+        const hasOfferFeature = object.offer.features.some(value => value === checkbox.value)
+        return hasOfferFeature;
       })
     }
   });
@@ -160,4 +164,4 @@ const setFiltering = (data, callback) => {
 }
 
 
-export {mapFiltersForm, setFiltering};
+export {setFiltering};

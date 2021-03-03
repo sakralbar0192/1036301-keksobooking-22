@@ -1,6 +1,4 @@
-import {sendData} from './api.js';
-import {mainMarker} from './map.js';
-
+const mapFiltersForm = document.querySelector('.map__filters');
 const addForm = document.querySelector('.ad-form');
 const addressField = addForm.querySelector('#address');
 const addFormResetButton = addForm.querySelector('.ad-form__reset');
@@ -13,14 +11,78 @@ const addFormCapacity = addForm.querySelector('#capacity');
 const addFormTitle = addForm.querySelector('#title');
 
 /**
- * Функция определяющая значения поля "Количество мест" в зависимости от поля  "Количество комнат"
+ * Функция делает переданную форму неактивной и добавляет атрибут disabled внутренним полям
  *
- * @param {object} value - значение, которое принимает поле "Количество комнат"
+ * @param {object} form - форма, которую необходимо сделать неактивной
+ * @param {string} - класс формы
+ */
+const makeFormInactive = (form, formClass) => {
+  form.classList.add(formClass + '--disabled');
+  Array.from(form.children).forEach((value) => {
+    value.setAttribute('disabled', 'disabled');
+  });
+};
+
+/**
+ * Функция делает переданную форму активной и удаляет атрибут disabled у внутренних полей
+ *
+ * @param {object} form - форма, которую необходимо сделать активной
+ * @param {string} - класс формы
+ */
+const makeFormActive = (form, formClass) => {
+  form.classList.remove(formClass + '--disabled');
+  Array.from(form.children).forEach((value) => {
+    value.removeAttribute('disabled');
+  });
+};
+
+/**
+ * Функция делает формы фильтрации и подачи объявлений на странице неактивными
+ */
+const makeFormsInactive = () => {
+  makeFormInactive(mapFiltersForm, '.map__filters');
+  makeFormInactive(addForm, '.ad-form');
+};
+
+/**
+ * Функция делает форму для добавления нового объявления активной
+ */
+const makeAddFormActive = () => {
+  makeFormActive(addForm, '.ad-form');
+};
+
+/**
+ * Функция делает форму для фильтрации активной
+ */
+const makeMapFiltersFormActive = () => {
+  makeFormActive(mapFiltersForm, '.map__filters');
+};
+
+/**
+ * Функция устанавливает в поле Адрес значения по-умолчанию и добавляет ему атрибут readonly
+ */
+const setAddressFieldDefaultValue = () => {
+  addressField.value = 35.68170 + ', ' + 139.75388;
+  addressField.setAttribute('readonly', 'readonly');
+};
+
+/**
+ * Функция устанавливает полю 'Адрес' значения параметра position
+ */
+const setAddressFieldValue = (position) => {
+  addressField.value = position.lat.toFixed(5) + ', '  + position.lng.toFixed(5);
+}
+
+
+
+/**
+ * Функция определяющая значения поля "Количество мест" в зависимости от поля  "Количество комнат"
  *
  * @returns {Array} значения, которые может принимать поле "Количество мест"
  */
-const checkCapacity = (value) => {
-  switch (value) {
+const determineCapacity = () => {
+  const addFormRoomNumberValue = addFormRoomNumber.value;
+  switch (addFormRoomNumberValue) {
     case '100':
       return [
         '0',
@@ -46,12 +108,11 @@ const checkCapacity = (value) => {
 /**
  * Функция определяющая минимальную цену за ночь в соответствии с типом жилья
  *
- * @param {string} value - значение поля 'тип жилья'
- *
  * @returns {number} - минимальная цена за ночь
  */
-const defineMinPrice = (value) => {
-  switch (value) {
+const determineMinPrice = () => {
+  const addFormTypeHousingValue = addFormTypeHousing.value;
+  switch (addFormTypeHousingValue) {
     case 'bungalow':
       return 0;
     case 'flat':
@@ -64,91 +125,109 @@ const defineMinPrice = (value) => {
 };
 
 /**
- * Функция реализующая логику валидации и взаимодействия полей "Количество комнат" и "Количество мест"
- *
- * @param {object} fieldOne  - поле, от которого зависят значения поля 2
- * @param {object} fieldTwo  - поле, значения которого зависят от поля 1
+ * Функция в зависимости от значений поля "Количество комнат" вводит ограничения на поле "Количество мест"
  */
-const validationCompliance = (fieldOne, fieldTwo) => {
-  const fields = [fieldOne, fieldTwo];
+const validationCapacity = () => {
+  const fields = [addFormRoomNumber, addFormCapacity];
   fields.forEach((field) => {
     field.addEventListener('change', () => {
-      const allowedValues = checkCapacity(fieldOne.value);
-      if (allowedValues.some((value) => {
-        return value === fieldTwo.value
-      })) {
-        fieldTwo.setCustomValidity('')
-      }else {
-        fieldTwo.setCustomValidity('Неподходящее значение')
-      }
-      fieldTwo.reportValidity();
+      const allowedValues = determineCapacity();
+      const isValueContains = allowedValues.some(value => value === addFormCapacity.value);
+      (isValueContains)
+        ? addFormCapacity.setCustomValidity('')
+        : addFormCapacity.setCustomValidity('Неподходящее значение')
+      addFormCapacity.reportValidity();
     })
   })
 };
 
 /**
- * Функция синхронизирующая два поля и делающая их значения одинаковыми при изменении одного из них
- *
- * @param {object} fieldOne - первое поле
- * @param {object} fieldTwo - второе поле
+ * Функция синхронизирующая два поля в разделе  'Время заезда и выезда'
  */
-const synchronizeField = (fieldOne, fieldTwo) => {
-  const massive = [fieldOne, fieldTwo]
-  massive.forEach((field) => {
+const synchronizeField = () => {
+  const fields = [addFormTimeIn, addFormTimeOut]
+  fields.forEach((field) => {
     field.addEventListener('change', (evt) =>{
-      (evt.target === fieldTwo)
-        ? fieldOne.value = fieldTwo.value
-        : fieldTwo.value = fieldOne.value;
+      (evt.target === addFormTimeOut)
+        ? addFormTimeIn.value = addFormTimeOut.value
+        : addFormTimeOut.value = addFormTimeIn.value;
     });
   });
 };
 
 /**
- * Валидация "на лету" поля "Заголовок объявления"
+ * Функция для валидации количества символов поля "Заголовок объявления"
  */
-addFormTitle.addEventListener('input', () => {
-  const valueLength = addFormTitle.value.length;
+const titleValidation = () => {
   const minLength = addFormTitle.getAttribute('minlength');
   const maxLength = addFormTitle.getAttribute('maxlength');
-  if (valueLength < minLength) {
-    addFormTitle.setCustomValidity('Еще ' + (minLength - valueLength) + ' символов');
-  }else if (valueLength > maxLength) {
-    addFormTitle.setCustomValidity('Удалите ' + (valueLength - maxLength) + ' символов');
-  }else {
-    addFormTitle.setCustomValidity('');
-  }
-  addFormTitle.reportValidity();
-});
+  addFormTitle.addEventListener('input', () => {
+    const valueLength = addFormTitle.value.length;
+    if (valueLength < minLength) {
+      addFormTitle.setCustomValidity('Еще ' + (minLength - valueLength) + ' символов');
+    }else if (valueLength > maxLength) {
+      addFormTitle.setCustomValidity('Удалите ' + (valueLength - maxLength) + ' символов');
+    }else {
+      addFormTitle.setCustomValidity('');
+    }
+    addFormTitle.reportValidity();
+  });
+}
 
 /**
- * Валидатор и обработчик событий поля 'Цена за ночь', проверяющий введенные данные на соответствие ожидаемым
+ * Функция для валидации поля 'Цена за ночь'
  */
-addFormPricePerNight.addEventListener('input', () => {
-  const minPrice = defineMinPrice(addFormTypeHousing.value);
-  addFormPricePerNight.setAttribute('min', minPrice);
-  if (addFormPricePerNight.value) {
-    (addFormPricePerNight.value < minPrice)
-      ? addFormPricePerNight.setCustomValidity('Цена за указанный тип жилья не может быть ниже ' + minPrice)
-      : addFormPricePerNight.setCustomValidity('');
-    addFormPricePerNight.reportValidity();
-  }
-});
+const PricePerNightValidation = () => {
+  addFormTypeHousing.addEventListener('change', () => {
+    const minPrice = determineMinPrice();
+    addFormPricePerNight.setAttribute('min', minPrice);
+    addFormPricePerNight.setAttribute('placeholder', minPrice);
+    if (addFormPricePerNight.value) {
+      (addFormPricePerNight.value < minPrice)
+        ? addFormPricePerNight.setCustomValidity('Цена за указанный тип жилья не может быть ниже ' + minPrice)
+        : addFormPricePerNight.setCustomValidity('');
+      addFormPricePerNight.reportValidity();
+    }
+  });
+  addFormPricePerNight.addEventListener('input', () => {
+    if (addFormPricePerNight.value) {
+      const minPrice = parseInt(addFormPricePerNight.getAttribute('min'), 10);
+      (addFormPricePerNight.value < minPrice)
+        ? addFormPricePerNight.setCustomValidity('Цена за указанный тип жилья не может быть ниже ' + minPrice)
+        : addFormPricePerNight.setCustomValidity('');
+      addFormPricePerNight.reportValidity();
+    }
+  });
+};
 
 /**
- * Обработчик событий поля 'Тип жилья' меняющий минимальное значение и плэйсхолдер поля 'Цена за ночь'
- * в соответствии с выбраным типом жилья, а так же валидирующий поле 'Цена за ночь'
+ * Функция сбрасывает поля форм, а так же возвращает маркер синхронизированный с полем 'Адрес' и
+ * значение самого поля в значения по-умолчанию
+ *
+ * @param {object} marker - маркер, связанный с полем 'Адрес'
  */
-addFormTypeHousing.addEventListener('change', () => {
-  const minPrice = defineMinPrice(addFormTypeHousing.value);
-  addFormPricePerNight.setAttribute('min', minPrice);
-  addFormPricePerNight.setAttribute('placeholder', minPrice);
-  if (addFormPricePerNight.value) {
-    (addFormPricePerNight.value < minPrice)
-      ? addFormPricePerNight.setCustomValidity('Цена за указанный тип жилья не может быть ниже ' + minPrice)
-      : addFormPricePerNight.setCustomValidity('');
-    addFormPricePerNight.reportValidity();
-  }
-});
+const resetForm = (marker) => {
+  addForm.reset();
+  addFormCapacity.setCustomValidity('');
+  addFormPricePerNight.setCustomValidity('');
+  addFormTitle.setCustomValidity('');
+  marker.setLatLng(
+    [
+      35.68170,
+      139.75388,
+    ]);
+  setTimeout(
+    () => {
+      addressField.value = marker.getLatLng().lat.toFixed(5) + ', '  + marker.getLatLng().lng.toFixed(5);
+    } , 0);
+}
+
+/**
+ * Функция настраивающая работу кнопки 'очистить'
+ */
+const configureFunctionalityResetButton = (marker) => {
+  addFormResetButton.addEventListener('click', () => resetForm(marker));
+}
 
 /**
  * Функция, показывающая сообщение об успешной отправке формы
@@ -185,47 +264,47 @@ const onErrorSendFormMessage = () => {
 };
 
 /**
- * Функция сбрасывает поля форм, а так же возвращает главный маркер и значение поля Адрес в значение по-умолчанию
+ * Функция создающая форме событие по submit, отправляющее данные с формы с помощью переданной функции
+ *
+ * @param {function} functionForSendData - Функция выполняющая отправку собранных данных
  */
-const resetForm = () => {
-  addForm.reset();
-  mainMarker.setLatLng(
-    [
-      35.68170,
-      139.75388,
-    ]);
-  setTimeout(() => {addressField.value = mainMarker.getLatLng().lat.toFixed(5) + ', '  + mainMarker.getLatLng().lng.toFixed(5);} , 0);
+const configureFunctionalitySubmitButton = (functionForSendData) => {
+  addForm.addEventListener('submit', (evt) => {
+    evt.preventDefault();
+    const formData = new FormData(evt.target);
+    functionForSendData(
+      formData,
+      () => {
+        onSuccessSendFormMessage(),
+        resetForm()
+      },
+      onErrorSendFormMessage,
+    );
+  });
 }
 
 /**
- * синхронизация полей из блока 'Время заезда и выезда'
+ * Функция, конфигурирующая и валидирующая логику работы полей формы подачи объявления
+ *
+ * @param {object} marker - маркер, значения которого будут сбрасываться при очистке формы
+ * @param {function} functionForSendData - Функция, которая отправит данные собранные в форме
  */
-synchronizeField(addFormTimeIn, addFormTimeOut);
+const configureAddForm = (marker, functionForSendData) => {
+  titleValidation();
+  PricePerNightValidation();
+  validationCapacity();
+  setAddressFieldDefaultValue();
+  synchronizeField();
+  configureFunctionalityResetButton(marker);
+  configureFunctionalitySubmitButton(functionForSendData)
+};
 
-/**
- * Реализация логики валидации и взаимодействия полей "Количество комнат" и "Количество мест"
- */
-validationCompliance(addFormRoomNumber, addFormCapacity);
 
-/**
- * Настройка кнопки сброса формы
- */
-addFormResetButton.addEventListener('click', () => resetForm());
-
-/**
- * Отправка данных на сервер по сабмиту
- */
-addForm.addEventListener('submit', (evt) => {
-  evt.preventDefault();
-  const formData = new FormData(evt.target);
-  sendData(
-    formData,
-    () => {
-      onSuccessSendFormMessage(),
-      resetForm()
-    },
-    onErrorSendFormMessage,
-  );
-});
-
-export {resetForm, addressField, addForm};
+export {
+  resetForm,
+  makeFormsInactive,
+  makeAddFormActive,
+  setAddressFieldValue,
+  makeMapFiltersFormActive,
+  configureAddForm
+};

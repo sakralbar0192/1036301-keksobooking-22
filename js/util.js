@@ -1,3 +1,4 @@
+const ALERT_SHOW_TIME = 2000 //Время показа сообщения об ошибке
 /**
  * Функция, создающая случайное число в указанном интервале с указанной точностью
  *
@@ -43,7 +44,7 @@ const createElement = (tagName, className, text) => {
  *
  * * @param {number} alertShowTime  - время показа в милисекундах
  */
-const showAlert = (alertShowTime) => {
+const showAlert = (message) => {
   const alertContainer = document.createElement('div');
   alertContainer.style.zIndex = 100;
   alertContainer.style.position = 'absolute';
@@ -55,39 +56,15 @@ const showAlert = (alertShowTime) => {
   alertContainer.style.textAlign = 'center';
   alertContainer.style.backgroundColor = 'red';
 
-  alertContainer.textContent = 'Произошла ошибка!';
+  alertContainer.textContent = message;
 
   document.body.append(alertContainer);
 
   setTimeout(() => {
     alertContainer.remove();
-  }, alertShowTime);
+  }, ALERT_SHOW_TIME);
 };
 
-/**
- * Функция делает форму неактивной и добавляет атрибут disabled внутренним полям
- *
- * @param {object} form - форма, которую необходимо сделать неактивной
- * @param {string} - класс формы
- */
-const makeFormInactive = (form, formClass) => {
-  form.classList.add(formClass + '--disabled');
-  Array.from(form.children).forEach((value) => {
-    value.setAttribute('disabled', 'disabled');
-  });
-};
 
-/**
- * Функция делает форму активной и добавляет атрибут disabled внутренним полям
- *
- * @param {object} form - форма, которую необходимо сделать активной
- * @param {string} - класс формы
- */
-const makeFormActive = (form, formClass) => {
-  form.classList.remove(formClass + '--disabled');
-  Array.from(form.children).forEach((value) => {
-    value.removeAttribute('disabled');
-  });
-};
 
-export {getRandomNumber, createElement, showAlert, makeFormInactive, makeFormActive};
+export {getRandomNumber, createElement, showAlert};
