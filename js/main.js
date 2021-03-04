@@ -3,8 +3,9 @@ import {initializeMap, createMainMarker, renderOffersMarkers, mainMarker} from '
 import {getData, sendData} from './api.js';
 import {createPopupElement} from './popup.js';
 import {setFiltering} from './map-filtering-form.js';
-import {showAlert} from './util.js';
+import {showAlert, debounce} from './util.js';
 
+const RENDER_DELAY = 500; //задержка перед отрисовкой маркеров на карте
 /**
  * Делает формы неактивными до инициализации карты.
  */
@@ -27,14 +28,14 @@ configureAddForm(mainMarker, sendData);
 
 /**
  * Делает запрос на сервер, создает на карте метки объявлений со всплывающими попапами,
- * активирует форму с фильтрами и позволяет фильтровать объявления
+ * активирует форму с фильтрами и позволяет фильтровать объявления, обновляя результат с задержкой после последнего изменения
  */
 getData(
   (data) => {
     renderOffersMarkers(data, createPopupElement);
     makeMapFiltersFormActive();
     setFiltering(data, (filteredData) => {
-      renderOffersMarkers(filteredData, createPopupElement);
+      debounce(() => renderOffersMarkers(filteredData, createPopupElement), RENDER_DELAY)
     });
   },
   showAlert,
