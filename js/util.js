@@ -1,4 +1,3 @@
-const ALERT_SHOW_TIME = 2000 //Время показа сообщения об ошибке
 /**
  * Функция, создающая случайное число в указанном интервале с указанной точностью
  *
@@ -32,7 +31,9 @@ const getRandomNumber = function (min = 0, max = 1000, precision = 5) {
  */
 const createElement = (tagName, className, text) => {
   const element = document.createElement(tagName);
-  element.classList.add(className);
+  if (className) {
+    element.classList.add(className);
+  }
   if (text) {
     element.textContent = text;
   }
@@ -44,7 +45,7 @@ const createElement = (tagName, className, text) => {
  *
  * * @param {number} alertShowTime  - время показа в милисекундах
  */
-const showAlert = (message) => {
+const showAlert = (alertShowTime) => {
   const alertContainer = document.createElement('div');
   alertContainer.style.zIndex = 100;
   alertContainer.style.position = 'absolute';
@@ -56,15 +57,30 @@ const showAlert = (message) => {
   alertContainer.style.textAlign = 'center';
   alertContainer.style.backgroundColor = 'red';
 
-  alertContainer.textContent = message;
+  alertContainer.textContent = 'Произошла ошибка!';
 
   document.body.append(alertContainer);
 
   setTimeout(() => {
     alertContainer.remove();
-  }, ALERT_SHOW_TIME);
+  }, alertShowTime);
 };
 
+/**
+ * Функция, выполняющая переданный колбэк после указанной задержки
+ * @param {function} callback - функция, которую необходимо запустить после задержки
+ * @param {*} timeout - задержка
+ *
+ * @returns результат работы функции устанавливающей таймер на выполнение колбэка
+ */
+const debounce = (callback, timeout) => {
+  let timeoutId = {};
+  const setEventTimeout = () => {
+    clearTimeout(timeoutId)
+    timeoutId = setTimeout(callback, timeout)
+  }
+  return setEventTimeout();
+}
 
 
-export {getRandomNumber, createElement, showAlert};
+export {getRandomNumber, createElement, showAlert, debounce};

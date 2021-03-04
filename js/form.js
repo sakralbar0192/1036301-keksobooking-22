@@ -1,6 +1,15 @@
+const AlowedTypes = [
+  'JPEG',
+  'JPG',
+  'PNG',
+];
+
 const mapFiltersForm = document.querySelector('.map__filters');
 const addForm = document.querySelector('.ad-form');
 const addressField = addForm.querySelector('#address');
+const avatarField = addForm.querySelector('#avatar');
+const offerPhotosField = addForm.querySelector('#images');
+const photosBlock = addForm.querySelector('.ad-form__photo');
 const addFormResetButton = addForm.querySelector('.ad-form__reset');
 const addFormTypeHousing = addForm.querySelector('#type');
 const addFormPricePerNight = addForm.querySelector('#price');
@@ -200,6 +209,58 @@ const PricePerNightValidation = () => {
   });
 };
 
+const addImageToPhotoBlock = (dataURL) => {
+  const photo = document.createElement('img');
+  photo.src = dataURL;
+  photo.setAttribute('width', '40');
+  photo.setAttribute('height', '44');
+  photo.alt = 'Фотография жилья'
+  photosBlock.appendChild(photo);
+}
+/**
+ * Функция заменяет изображение аватара на загруженный файл в соответствующем блоке
+ *  или вызывает функцию, которая добавляет фотографию в блок с фото.
+ *
+ * @param {object} file - файл изображение, которое необходимо отобразить на странице
+ * @param {boolean} isThisAvatarField - результат проверки поля, необходимый для того, чтобы добавить файл в нужный блок
+ * @param {function} createElementFunction - функция, которая может создать DOM элемент
+ */
+const displayUploadedImage = (file, isThisAvatarField) => {
+  const reader = new FileReader;
+  reader.addEventListener('load',() => {
+    (isThisAvatarField)
+      ? addForm.querySelector('#avatar-image').src = reader.result
+      : addImageToPhotoBlock(reader.result)
+  })
+  reader.readAsDataURL(file);
+}
+/**
+ * Функция проверяющая, что загруженный файл имеет допустимое расширение
+ *
+ * @param {function} onSuccessValidation - функция, которую необходимо выполнить при успешной валидации загруженного файла
+ *
+ */
+const validationImageField = (onSuccessValidation) => {
+  const imageFields = [offerPhotosField,avatarField];
+  imageFields.forEach((field) => {
+    const isThisAvatarField = (field === avatarField);
+    field.addEventListener('change', () => {
+      field.setCustomValidity('');
+      const files = Array.from(field.files);
+      files.forEach((file) => {
+        const fileName = file.name.toUpperCase();
+        const isFileAllowed = AlowedTypes.some((it) => {
+          return fileName.endsWith(it);
+        });
+        return (isFileAllowed)
+          ? onSuccessValidation(file, isThisAvatarField)
+          : field.setCustomValidity('Неверный формат изображения');
+      })
+      field.reportValidity();
+    })
+  })
+}
+
 /**
  * Функция сбрасывает поля форм, а так же возвращает маркер синхронизированный с полем 'Адрес' и
  * значение самого поля в значения по-умолчанию
@@ -296,7 +357,8 @@ const configureAddForm = (marker, functionForSendData) => {
   setAddressFieldDefaultValue();
   synchronizeField();
   configureFunctionalityResetButton(marker);
-  configureFunctionalitySubmitButton(functionForSendData)
+  configureFunctionalitySubmitButton(functionForSendData);
+  validationImageField(displayUploadedImage, true);
 };
 
 
