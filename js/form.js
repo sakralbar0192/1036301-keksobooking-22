@@ -215,7 +215,7 @@ const addImageToPhotoBlock = (dataURL) => {
   photo.setAttribute('width', '40');
   photo.setAttribute('height', '44');
   photo.alt = 'Фотография жилья'
-  PhotosBlock.appendChild(photo);
+  photosBlock.appendChild(photo);
 }
 /**
  * Функция заменяет изображение аватара на загруженный файл в соответствующем блоке
