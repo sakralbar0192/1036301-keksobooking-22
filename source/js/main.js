@@ -22,18 +22,16 @@ initializeMap(makeAddFormActive);
 createMainMarker(setAddressFieldValue);
 
 /**
- * Настраивает форму добавления нового объявления
- */
-configureAddForm(mainMarker, sendData);
-
-/**
- * Делает запрос на сервер, создает на карте метки объявлений со всплывающими попапами,
+ * Делает запрос на сервер, создает на карте метки объявлений со всплывающими попапами, настраивает форму добавления нового объявления,
  * активирует форму с фильтрами и позволяет фильтровать объявления, обновляя результат с задержкой после последнего изменения
  */
 getData(
   (data) => {
     renderOffersMarkers(data, createPopupElement);
     makeMapFiltersFormActive();
+    configureAddForm(mainMarker, () => {sendData}, () => {
+      renderOffersMarkers(data, createPopupElement)
+    });
     setFiltering(data, (filteredData) => {
       debounce(() => renderOffersMarkers(filteredData, createPopupElement), RENDER_DELAY)
     });

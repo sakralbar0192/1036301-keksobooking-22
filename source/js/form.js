@@ -269,13 +269,26 @@ const validationImageField = (onSuccessValidation) => {
 }
 
 /**
+ * Функция возвращает поля в фильтре карты к значениям по умолчанию и выполняет переданную функцию
+ * @param {function} callback - функция, выполняющаяся после сброса формы (отрисовка нефильтрованных предложений)
+ */
+const resetMapFiltersForm = (callback) => {
+  Array.from(mapFiltersForm.children).forEach((filterField) => {
+    filterField.value = 'any';
+  })
+  callback();
+};
+
+/**
  * Функция сбрасывает поля форм, а так же возвращает маркер синхронизированный с полем 'Адрес' и
  * значение самого поля в значения по-умолчанию
  *
  * @param {object} marker - маркер, связанный с полем 'Адрес'
+ * @param {function} callback - функция для отрисовки нефильтрованных предложений
  */
-const resetForm = (marker) => {
+const resetForm = (marker, callback) => {
   addForm.reset();
+  resetMapFiltersForm(callback);
   addFormCapacity.setCustomValidity('');
   addFormPricePerNight.setCustomValidity('');
   addFormTitle.setCustomValidity('');
@@ -292,9 +305,12 @@ const resetForm = (marker) => {
 
 /**
  * Функция настраивающая работу кнопки 'очистить'
+ *
+ * @param {function} callback - функция для отрисовки нефильтрованных предложений
+ * @param {object} marker - главный маркер позиция, которого сбрасывается до изначальной
  */
-const configureFunctionalityResetButton = (marker) => {
-  addFormResetButton.addEventListener('click', () => resetForm(marker));
+const configureFunctionalityResetButton = (marker, callback) => {
+  addFormResetButton.addEventListener('click', () => resetForm(marker, callback));
 }
 
 /**
@@ -356,15 +372,16 @@ const configureFunctionalitySubmitButton = (functionForSendData) => {
  *
  * @param {object} marker - маркер, значения которого будут сбрасываться при очистке формы
  * @param {function} functionForSendData - Функция, которая отправит данные собранные в форме
+ * @param {function} callback - функция для отрисовки нефильтрованных предложений
  */
-const configureAddForm = (marker, functionForSendData) => {
+const configureAddForm = (marker, functionForSendData, callback) => {
   titleValidation();
   PricePerNightValidation();
   validationCapacity();
   setAddressFieldDefaultValue();
   synchronizeField();
-  configureFunctionalityResetButton(marker);
-  configureFunctionalitySubmitButton(functionForSendData);
+  configureFunctionalityResetButton(marker, () => callback);
+  configureFunctionalitySubmitButton(() => functionForSendData);
   validationImageField(displayUploadedImage, true);
 };
 
