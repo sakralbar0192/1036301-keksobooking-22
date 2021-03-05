@@ -209,6 +209,11 @@ const PricePerNightValidation = () => {
   });
 };
 
+/**
+ * Функция добавляет изображение в формате DataURL В блок с фотографиями
+ *
+ * @param {object} dataURL - изображение в формате DataURL
+ */
 const addImageToPhotoBlock = (dataURL) => {
   const photo = document.createElement('img');
   photo.src = dataURL;
@@ -216,6 +221,7 @@ const addImageToPhotoBlock = (dataURL) => {
   photo.setAttribute('height', '44');
   photo.alt = 'Фотография жилья'
   photosBlock.appendChild(photo);
+
 }
 /**
  * Функция заменяет изображение аватара на загруженный файл в соответствующем блоке
@@ -234,6 +240,7 @@ const displayUploadedImage = (file, isThisAvatarField) => {
   })
   reader.readAsDataURL(file);
 }
+
 /**
  * Функция проверяющая, что загруженный файл имеет допустимое расширение
  *
