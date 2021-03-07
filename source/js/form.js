@@ -5,9 +5,12 @@ const AlowedTypes = [
 ];
 
 const mapFiltersForm = document.querySelector('.map__filters');
+const mapFilterHousingFeatures = mapFiltersForm.querySelector('#housing-features');
+const mapFilterHousingFeaturesInputs = mapFilterHousingFeatures.querySelectorAll('.map__checkbox');
 const addForm = document.querySelector('.ad-form');
 const addressField = addForm.querySelector('#address');
 const avatarField = addForm.querySelector('#avatar');
+const avatarImage = addForm.querySelector('#avatar-image')
 const offerPhotosField = addForm.querySelector('#images');
 const photosBlock = addForm.querySelector('.ad-form__photo');
 const addFormResetButton = addForm.querySelector('.ad-form__reset');
@@ -235,7 +238,7 @@ const displayUploadedImage = (file, isThisAvatarField) => {
   const reader = new FileReader;
   reader.addEventListener('load',() => {
     (isThisAvatarField)
-      ? addForm.querySelector('#avatar-image').src = reader.result
+      ? avatarImage.src = reader.result
       : addImageToPhotoBlock(reader.result)
   })
   reader.readAsDataURL(file);
@@ -269,19 +272,35 @@ const validationImageField = (onSuccessValidation) => {
 }
 
 /**
+ * Функция возвращает поля в фильтре карты к значениям по умолчанию и выполняет переданную функцию
+ * @param {function} callback - функция, выполняющаяся после сброса формы (отрисовка нефильтрованных предложений)
+ */
+const resetMapFiltersForm = () => {
+  Array.from(mapFiltersForm.children).forEach((filterField) => {
+    (filterField === mapFilterHousingFeatures)
+      ? Array.from(mapFilterHousingFeaturesInputs).forEach((input) => {
+        input.checked = false;
+      })
+      : filterField.value = 'any';
+  })
+};
+
+/**
  * Функция сбрасывает поля форм, а так же возвращает маркер синхронизированный с полем 'Адрес' и
  * значение самого поля в значения по-умолчанию
  *
  * @param {object} marker - маркер, связанный с полем 'Адрес'
  */
-const resetForm = (marker) => {
+const resetAddForm = (marker) => {
   addForm.reset();
   addFormCapacity.setCustomValidity('');
   addFormPricePerNight.setCustomValidity('');
   addFormTitle.setCustomValidity('');
+  avatarImage.src = 'img/muffin-grey.svg';
+  photosBlock.innerHTML = '';
   marker.setLatLng(
     [
-      35.68170,
+      35.6817,
       139.75388,
     ]);
   setTimeout(
@@ -292,9 +311,16 @@ const resetForm = (marker) => {
 
 /**
  * Функция настраивающая работу кнопки 'очистить'
+ *
+ * @param {function} callback - функция для отрисовки нефильтрованных предложений
+ * @param {object} marker - главный маркер позиция, которого сбрасывается до изначальной
  */
-const configureFunctionalityResetButton = (marker) => {
-  addFormResetButton.addEventListener('click', () => resetForm(marker));
+const configureFunctionalityResetButton = (marker, callback) => {
+  addFormResetButton.addEventListener('click', () => {
+    resetAddForm(marker)
+    resetMapFiltersForm();
+    callback();
+  });
 }
 
 /**
@@ -306,10 +332,10 @@ const onSuccessSendFormMessage = () => {
     if (evt.keyCode === 27){
       message.remove();
     }
-  });
+  }, {once: true});
   document.addEventListener('click',() => {
     message.remove();
-  });
+  }, {once: true});
   message.style.zIndex = 400;
   document.querySelector('main').appendChild(message);
 };
@@ -323,10 +349,10 @@ const onErrorSendFormMessage = () => {
     if (evt.keyCode === 27){
       message.remove();
     }
-  });
+  }, {once: true});
   document.addEventListener('click',() => {
     message.remove();
-  });
+  }, {once: true});
   message.style.zIndex = 400;
   document.querySelector('main').appendChild(message);
 };
@@ -336,18 +362,11 @@ const onErrorSendFormMessage = () => {
  *
  * @param {function} functionForSendData - Функция выполняющая отправку собранных данных
  */
-const configureFunctionalitySubmitButton = (functionForSendData) => {
+const configureFunctionalitySubmitButton = (functionForSendData, marker) => {
   addForm.addEventListener('submit', (evt) => {
     evt.preventDefault();
     const formData = new FormData(evt.target);
-    functionForSendData(
-      formData,
-      () => {
-        onSuccessSendFormMessage(),
-        resetForm()
-      },
-      onErrorSendFormMessage,
-    );
+    functionForSendData(formData,() => {onSuccessSendFormMessage(); resetAddForm(marker)}, onErrorSendFormMessage);
   });
 }
 
@@ -356,24 +375,26 @@ const configureFunctionalitySubmitButton = (functionForSendData) => {
  *
  * @param {object} marker - маркер, значения которого будут сбрасываться при очистке формы
  * @param {function} functionForSendData - Функция, которая отправит данные собранные в форме
+ * @param {function} callback - функция для отрисовки нефильтрованных предложений
  */
-const configureAddForm = (marker, functionForSendData) => {
+const configureAddForm = () => {
   titleValidation();
   PricePerNightValidation();
   validationCapacity();
   setAddressFieldDefaultValue();
   synchronizeField();
-  configureFunctionalityResetButton(marker);
-  configureFunctionalitySubmitButton(functionForSendData);
   validationImageField(displayUploadedImage, true);
 };
 
-
 export {
-  resetForm,
+  resetAddForm,
   makeFormsInactive,
   makeAddFormActive,
   setAddressFieldValue,
   makeMapFiltersFormActive,
-  configureAddForm
+  configureAddForm,
+  configureFunctionalityResetButton,
+  configureFunctionalitySubmitButton,
+  onErrorSendFormMessage,
+  onSuccessSendFormMessage
 };

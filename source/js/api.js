@@ -2,7 +2,7 @@
  * отправляет GET запрос на сервер и обрабатывает данные
  *
  * @param {function} onError - функция, которая выполнится при ошибке получении данных
- * @param {function} onError - функция, которая выполнится при успешном получении данных
+ * @param {function} onSuccess - функция, которая выполнится при успешном получении данных
  *
  */
 const getData = (onSuccess, onError) => {
@@ -21,12 +21,13 @@ const getData = (onSuccess, onError) => {
       onError(error)
     });
 }
+
 /**
  * Отправляет данные методом POST
  *
  * @param {object} data - данные, отправляемые на сервер
  * @param {function} onSuccess - функция, которая выполнится при успешной отправке данных
- * @param {function} onSuccess - функция, которая выполнится при ошибке отправки данных
+ * @param {function} onError - функция, которая выполнится при ошибке отправки данных
  */
 const sendData = (data, onSuccess, onError) => {
   fetch('https://22.javascript.pages.academy/keksobooking/data',
