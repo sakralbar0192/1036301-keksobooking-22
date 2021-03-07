@@ -21,6 +21,7 @@ const getData = (onSuccess, onError) => {
       onError(error)
     });
 }
+
 /**
  * Отправляет данные методом POST
  *
@@ -29,7 +30,7 @@ const getData = (onSuccess, onError) => {
  * @param {function} onError - функция, которая выполнится при ошибке отправки данных
  */
 const sendData = (data, onSuccess, onError) => {
-  fetch('https://jsonplaceholder.typicode.com/posts/', //https://22.javascript.pages.academy/keksobooking/data
+  fetch('https://22.javascript.pages.academy/keksobooking/data',
     {
       method: 'POST',
       headers:

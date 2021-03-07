@@ -1,4 +1,12 @@
-import {makeFormsInactive, makeAddFormActive, configureAddForm, setAddressFieldValue, makeMapFiltersFormActive} from './form.js';
+import {
+  makeFormsInactive,
+  makeAddFormActive,
+  configureAddForm,
+  setAddressFieldValue,
+  makeMapFiltersFormActive,
+  configureFunctionalityResetButton,
+  configureFunctionalitySubmitButton
+} from './form.js';
 import {initializeMap, createMainMarker, renderOffersMarkers, mainMarker} from './map.js';
 import {getData, sendData} from './api.js';
 import {createPopupElement} from './popup.js';
@@ -29,12 +37,18 @@ getData(
   (data) => {
     renderOffersMarkers(data, createPopupElement);
     makeMapFiltersFormActive();
-    configureAddForm(mainMarker, () => {sendData}, () => {
-      renderOffersMarkers(data, createPopupElement)
-    });
+    configureAddForm();
+    configureFunctionalityResetButton(mainMarker,() => renderOffersMarkers(data, createPopupElement))
     setFiltering(data, (filteredData) => {
       debounce(() => renderOffersMarkers(filteredData, createPopupElement), RENDER_DELAY)
     });
   },
   showAlert,
 );
+
+/**
+ * настраивает отправку данных с формы по сабмиту
+ */
+configureFunctionalitySubmitButton((formData,onSuccessSendFormMessage, onErrorSendFormMessage) => {
+  sendData(formData, onSuccessSendFormMessage, onErrorSendFormMessage)
+}, mainMarker);

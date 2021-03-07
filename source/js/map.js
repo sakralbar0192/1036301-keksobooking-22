@@ -34,8 +34,8 @@ const initializeMap = (onLoad) => {
       onLoad();
     })
     .setView({
-      lat:35.681700,
-      lng:139.753882,
+      lat:35.68170,
+      lng:139.75388,
     }, 10)
 
   L.tileLayer(
