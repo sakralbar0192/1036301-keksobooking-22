@@ -41,6 +41,7 @@ const makeRusType = (currentValue) => {
  * @param {Array} valueMassive - массив данных для генерации элементов
  * @param {string} elementTag - тэг формируемых элементов
  * @param {string} elementClass - класс формируемых элементов
+ * @param {object} elementBlockToFill - блок в который будет добавлены новые элементы
  * @param {boolean} isFeature - проверка является ли формируемый список списком преимуществ
  * @param {boolean} isOfferPhoto - проаерка является ли формируемый список списком фотографий
  *
@@ -68,7 +69,7 @@ const fillElement = (valueMassive, elementTag, elementClass, elementBlockToFill,
 /**
  * Функция создает разметку попапа для маркера предложения и заполняет его актуальными данными
  *
- * @param {object} param0 - объект с данными, необходимыми для формирования попапа
+ * @param {object} {author, offer} - объект с данными, необходимыми для формирования попапа
  *
  * @returns возвращает сформированный элемент-попап предложения
  */

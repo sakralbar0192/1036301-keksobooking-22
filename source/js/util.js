@@ -43,9 +43,10 @@ const createElement = (tagName, className, text) => {
 /**
  * Функция показывает сообщение об ошибке
  *
- * * @param {number} alertShowTime  - время показа в милисекундах
+ * @param {number} alertShowTime  - время показа в милисекундах
+ * @param {string} message -текст сообщения
  */
-const showAlert = (alertShowTime) => {
+const showAlert = (alertShowTime, message) => {
   const alertContainer = document.createElement('div');
   alertContainer.style.zIndex = 100;
   alertContainer.style.position = 'absolute';
@@ -57,7 +58,7 @@ const showAlert = (alertShowTime) => {
   alertContainer.style.textAlign = 'center';
   alertContainer.style.backgroundColor = 'red';
 
-  alertContainer.textContent = 'Произошла ошибка!';
+  alertContainer.textContent = message;
 
   document.body.append(alertContainer);
 

@@ -80,12 +80,12 @@ const setAddressFieldDefaultValue = () => {
 
 /**
  * Функция устанавливает полю 'Адрес' значения параметра position
+ *
+ * @param {object} position - значения, к которым привязано поле 'Адрес'
  */
 const setAddressFieldValue = (position) => {
   addressField.value = position.lat.toFixed(5) + ', '  + position.lng.toFixed(5);
 }
-
-
 
 /**
  * Функция определяющая значения поля "Количество мест" в зависимости от поля  "Количество комнат"
@@ -139,7 +139,7 @@ const determineMinPrice = () => {
 /**
  * Функция в зависимости от значений поля "Количество комнат" вводит ограничения на поле "Количество мест"
  */
-const validationCapacity = () => {
+const validateCapacity = () => {
   const fields = [addFormRoomNumber, addFormCapacity];
   fields.forEach((field) => {
     field.addEventListener('change', () => {
@@ -154,9 +154,9 @@ const validationCapacity = () => {
 };
 
 /**
- * Функция синхронизирующая два поля в разделе  'Время заезда и выезда'
+ * Функция синхронизирующая значения полей в разделе 'Время заезда и выезда'
  */
-const synchronizeField = () => {
+const synchronizeTimeField = () => {
   const fields = [addFormTimeIn, addFormTimeOut]
   fields.forEach((field) => {
     field.addEventListener('change', (evt) =>{
@@ -170,7 +170,7 @@ const synchronizeField = () => {
 /**
  * Функция для валидации количества символов поля "Заголовок объявления"
  */
-const titleValidation = () => {
+const validateTitle = () => {
   const minLength = addFormTitle.getAttribute('minlength');
   const maxLength = addFormTitle.getAttribute('maxlength');
   addFormTitle.addEventListener('input', () => {
@@ -189,7 +189,7 @@ const titleValidation = () => {
 /**
  * Функция для валидации поля 'Цена за ночь'
  */
-const PricePerNightValidation = () => {
+const validatePricePerNightField = () => {
   addFormTypeHousing.addEventListener('change', () => {
     const minPrice = determineMinPrice();
     addFormPricePerNight.setAttribute('min', minPrice);
@@ -224,15 +224,15 @@ const addImageToPhotoBlock = (dataURL) => {
   photo.setAttribute('height', '44');
   photo.alt = 'Фотография жилья'
   photosBlock.appendChild(photo);
-
 }
+
 /**
  * Функция заменяет изображение аватара на загруженный файл в соответствующем блоке
- *  или вызывает функцию, которая добавляет фотографию в блок с фото.
+ * или вызывает функцию, которая добавляет фотографию в блок с фото.
  *
  * @param {object} file - файл изображение, которое необходимо отобразить на странице
- * @param {boolean} isThisAvatarField - результат проверки поля, необходимый для того, чтобы добавить файл в нужный блок
- * @param {function} createElementFunction - функция, которая может создать DOM элемент
+ * @param {boolean} isThisAvatarField - результат проверки поля, необходимый для того, чтобы определить
+ * в какой блок добавить загруженный файл - значение true означает, что изображение будет добавлено в блок аватара
  */
 const displayUploadedImage = (file, isThisAvatarField) => {
   const reader = new FileReader;
@@ -246,11 +246,8 @@ const displayUploadedImage = (file, isThisAvatarField) => {
 
 /**
  * Функция проверяющая, что загруженный файл имеет допустимое расширение
- *
- * @param {function} onSuccessValidation - функция, которую необходимо выполнить при успешной валидации загруженного файла
- *
  */
-const validationImageField = (onSuccessValidation) => {
+const validateImageField = () => {
   const imageFields = [offerPhotosField,avatarField];
   imageFields.forEach((field) => {
     const isThisAvatarField = (field === avatarField);
@@ -263,7 +260,7 @@ const validationImageField = (onSuccessValidation) => {
           return fileName.endsWith(it);
         });
         return (isFileAllowed)
-          ? onSuccessValidation(file, isThisAvatarField)
+          ? displayUploadedImage(file, isThisAvatarField)
           : field.setCustomValidity('Неверный формат изображения');
       })
       field.reportValidity();
@@ -272,8 +269,7 @@ const validationImageField = (onSuccessValidation) => {
 }
 
 /**
- * Функция возвращает поля в фильтре карты к значениям по умолчанию и выполняет переданную функцию
- * @param {function} callback - функция, выполняющаяся после сброса формы (отрисовка нефильтрованных предложений)
+ * Функция возвращает поля в форме с фильтрами карты к значениям по умолчанию
  */
 const resetMapFiltersForm = () => {
   Array.from(mapFiltersForm.children).forEach((filterField) => {
@@ -286,8 +282,8 @@ const resetMapFiltersForm = () => {
 };
 
 /**
- * Функция сбрасывает поля форм, а так же возвращает маркер синхронизированный с полем 'Адрес' и
- * значение самого поля в значения по-умолчанию
+ * Функция сбрасывает поля формы для добавления нового объявления, а так же возвращает маркер синхронизированный
+ * с полем 'Адрес' и значение самого поля в значения по-умолчанию
  *
  * @param {object} marker - маркер, связанный с полем 'Адрес'
  */
@@ -312,21 +308,21 @@ const resetAddForm = (marker) => {
 /**
  * Функция настраивающая работу кнопки 'очистить'
  *
- * @param {function} callback - функция для отрисовки нефильтрованных предложений
+ * @param {function} renderMarkersFunction - функция для отрисовки нефильтрованных предложений
  * @param {object} marker - главный маркер позиция, которого сбрасывается до изначальной
  */
-const configureFunctionalityResetButton = (marker, callback) => {
+const configureFunctionalityResetButton = (marker, renderMarkersFunction) => {
   addFormResetButton.addEventListener('click', () => {
     resetAddForm(marker)
     resetMapFiltersForm();
-    callback();
+    renderMarkersFunction();
   });
 }
 
 /**
  * Функция, показывающая сообщение об успешной отправке формы
  */
-const onSuccessSendFormMessage = () => {
+const displayOnSuccessSendFormDataMessage = () => {
   const message = document.querySelector('#success').content.querySelector('.success').cloneNode(true);
   document.addEventListener('keydown',(evt) => {
     if (evt.keyCode === 27){
@@ -343,7 +339,7 @@ const onSuccessSendFormMessage = () => {
 /**
  * Функция, показывающая сообщение об ошибке при отправке формы
  */
-const onErrorSendFormMessage = () => {
+const displayOnErrorSendFormDataMessage = () => {
   const message = document.querySelector('#error').content.querySelector('.error').cloneNode(true);
   document.addEventListener('keydown',(evt) => {
     if (evt.keyCode === 27){
@@ -361,29 +357,32 @@ const onErrorSendFormMessage = () => {
  * Функция создающая форме событие по submit, отправляющее данные с формы с помощью переданной функции
  *
  * @param {function} functionForSendData - Функция выполняющая отправку собранных данных
+ * @param {object} marker - маркер, значения которого нужно сбросить к изначальным при успешной отправке данных
  */
 const configureFunctionalitySubmitButton = (functionForSendData, marker) => {
   addForm.addEventListener('submit', (evt) => {
     evt.preventDefault();
     const formData = new FormData(evt.target);
-    functionForSendData(formData,() => {onSuccessSendFormMessage(); resetAddForm(marker)}, onErrorSendFormMessage);
+    functionForSendData(
+      formData,
+      () => {
+        displayOnSuccessSendFormDataMessage();
+        resetAddForm(marker)
+      },
+      displayOnErrorSendFormDataMessage);
   });
 }
 
 /**
  * Функция, конфигурирующая и валидирующая логику работы полей формы подачи объявления
- *
- * @param {object} marker - маркер, значения которого будут сбрасываться при очистке формы
- * @param {function} functionForSendData - Функция, которая отправит данные собранные в форме
- * @param {function} callback - функция для отрисовки нефильтрованных предложений
  */
 const configureAddForm = () => {
-  titleValidation();
-  PricePerNightValidation();
-  validationCapacity();
+  validateTitle();
+  validatePricePerNightField();
+  validateCapacity();
   setAddressFieldDefaultValue();
-  synchronizeField();
-  validationImageField(displayUploadedImage, true);
+  synchronizeTimeField();
+  validateImageField();
 };
 
 export {
@@ -394,7 +393,5 @@ export {
   makeMapFiltersFormActive,
   configureAddForm,
   configureFunctionalityResetButton,
-  configureFunctionalitySubmitButton,
-  onErrorSendFormMessage,
-  onSuccessSendFormMessage
+  configureFunctionalitySubmitButton
 };

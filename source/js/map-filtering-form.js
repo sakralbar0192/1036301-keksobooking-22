@@ -11,7 +11,7 @@ const mapCheckboxes = mapFiltersForm.querySelectorAll('.map__checkbox');
  *
  * @param {object} data - данные для фильтрации
  *
- * @returns {bject} filtredData - отфильтрованные данные
+ * @returns {object} отфильтрованные данные
  */
 const filterByHousingType = (data) => {
   const currentValue = housingTypeFilter.value;
@@ -39,6 +39,7 @@ const determinePriceInterval = (value) => {
       return value >= 50000;
   }
 }
+
 /**
  * Функция фильтрует полученные данные по  цене за ночь
  *
@@ -153,7 +154,7 @@ const filterOffers = (data) => {
  * @param {object} data - данные для фильтрации
  * @param {function} callback - функция обрабатывающая отфильтрованные данные
  */
-const setFiltering = (data, callback) => {
+const configureFiltering = (data, callback) => {
   const filters = Array.from(mapSelects).concat(Array.from(mapCheckboxes))
   filters.forEach((filter) => {
     filter.addEventListener('change', () => {
@@ -164,4 +165,4 @@ const setFiltering = (data, callback) => {
 }
 
 
-export {setFiltering};
+export {configureFiltering};

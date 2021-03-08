@@ -2,7 +2,7 @@
 /**
  * Основные переменые модуля
  */
-const NUMBER_RENDERED_OFFERS_MARKERS = 10;
+const NUMBER_RENDERED_OFFERS_MARKERS = 10; //количество отрисовываемых маркеров
 let map = {};
 let mainMarker = {};
 let mainMarkerPosition = {};
@@ -73,13 +73,13 @@ const makeMarker = ( lat, lng, icoMarker, draggable) => {
 /**
  * Функция, создающая главный маркер
  *
- * @param {function} onMoveEnd - функция, которую необходимо выполнить при завершении передвижения маркера
+ * @param {function} onMoveEndFunction - функция, которую необходимо выполнить при завершении передвижения маркера
  */
-const createMainMarker = (onMoveEnd) => {
+const createMainMarker = (onMoveEndFunction) => {
   mainMarker = makeMarker(35.68170, 139.75388, mainMarkerIcon, true)
     .on('moveend', (evt) => {
       mainMarkerPosition = evt.target.getLatLng();
-      onMoveEnd(mainMarkerPosition);
+      onMoveEndFunction(mainMarkerPosition);
     });
   mainMarker.addTo(map);
 };
