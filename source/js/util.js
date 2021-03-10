@@ -1,3 +1,5 @@
+let timeoutId = {};
+
 /**
  * Функция, создающая случайное число в указанном интервале с указанной точностью
  *
@@ -67,21 +69,15 @@ const showAlert = (alertShowTime, message) => {
   }, alertShowTime);
 };
 
+
 /**
  * Функция, выполняющая переданный колбэк после указанной задержки
  * @param {function} callback - функция, которую необходимо запустить после задержки
- * @param {*} timeout - задержка
- *
- * @returns результат работы функции устанавливающей таймер на выполнение колбэка
+ * @param {number} timeout - задержка
  */
 const debounce = (callback, timeout) => {
-  let timeoutId = {};
-  const setEventTimeout = () => {
-    clearTimeout(timeoutId)
-    timeoutId = setTimeout(callback, timeout)
-  }
-  return setEventTimeout();
+  clearTimeout(timeoutId);
+  timeoutId = setTimeout(callback, timeout);
 }
-
 
 export {getRandomNumber, createElement, showAlert, debounce};

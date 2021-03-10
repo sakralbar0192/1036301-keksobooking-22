@@ -4,6 +4,43 @@ const AlowedTypes = [
   'PNG',
 ];
 
+const AddFormRoomNumberFieldValues = [
+  '100',
+  '1',
+  '2',
+  '3',
+];
+
+const AddFormCapacityFieldValues = [
+  '3',
+  '2',
+  '1',
+  '0',
+]
+
+const AddFormTypeHousingValues = [
+  'BUNGALOW',
+  'FLAT',
+  'HOUSE',
+  'PALACE',
+]
+
+const AddFormPricePerNightMinValues = [
+  0,
+  1000,
+  5000,
+  10000,
+]
+
+const PRECISION_COORDINATE = 5;
+const PHOTO_WIDTH = '40';
+const PHOTO_HEIGHT = '44';
+const MESSAGE_Z_INDEX = 400;
+const FOUNDATION_OF_CALCULUS_SYSTEM = 10;
+const MAP_CENTER_COORDINATE_LAT = 35.68170;
+const MAP_CENTER_COORDINATE_LNG = 139.75388;
+const ESCAPE_KEY_CODE = 27;
+
 const mapFiltersForm = document.querySelector('.map__filters');
 const mapFilterHousingFeatures = mapFiltersForm.querySelector('#housing-features');
 const mapFilterHousingFeaturesInputs = mapFilterHousingFeatures.querySelectorAll('.map__checkbox');
@@ -73,8 +110,8 @@ const makeMapFiltersFormActive = () => {
 /**
  * Функция устанавливает в поле Адрес значения по-умолчанию и добавляет ему атрибут readonly
  */
-const setAddressFieldDefaultValue = () => {
-  addressField.value = 35.68170 + ', ' + 139.75388;
+const setAddressFieldDefaultValue = (defaultLat, defaultLng) => {
+  addressField.value = defaultLat + ', ' + defaultLng;
   addressField.setAttribute('readonly', 'readonly');
 };
 
@@ -84,7 +121,7 @@ const setAddressFieldDefaultValue = () => {
  * @param {object} position - значения, к которым привязано поле 'Адрес'
  */
 const setAddressFieldValue = (position) => {
-  addressField.value = position.lat.toFixed(5) + ', '  + position.lng.toFixed(5);
+  addressField.value = position.lat.toFixed(PRECISION_COORDINATE) + ', '  + position.lng.toFixed(PRECISION_COORDINATE);
 }
 
 /**
@@ -95,24 +132,24 @@ const setAddressFieldValue = (position) => {
 const determineCapacity = () => {
   const addFormRoomNumberValue = addFormRoomNumber.value;
   switch (addFormRoomNumberValue) {
-    case '100':
+    case AddFormRoomNumberFieldValues[0]:
       return [
-        '0',
+        AddFormCapacityFieldValues[3],
       ];
-    case '3':
+    case AddFormRoomNumberFieldValues[3]:
       return [
-        '3',
-        '2',
-        '1',
+        AddFormCapacityFieldValues[0],
+        AddFormCapacityFieldValues[1],
+        AddFormCapacityFieldValues[2],
       ];
-    case '2':
+    case AddFormRoomNumberFieldValues[2]:
       return [
-        '2',
-        '1',
+        AddFormCapacityFieldValues[1],
+        AddFormCapacityFieldValues[2],
       ];
-    case '1':
+    case AddFormRoomNumberFieldValues[1]:
       return [
-        '1',
+        AddFormCapacityFieldValues[2],
       ];
   }
 };
@@ -125,14 +162,14 @@ const determineCapacity = () => {
 const determineMinPrice = () => {
   const addFormTypeHousingValue = addFormTypeHousing.value;
   switch (addFormTypeHousingValue) {
-    case 'bungalow':
-      return 0;
-    case 'flat':
-      return 1000;
-    case 'house':
-      return 5000;
-    case 'palace':
-      return 10000;
+    case AddFormTypeHousingValues[1].toLowerCase():
+      return AddFormPricePerNightMinValues[1];
+    case AddFormTypeHousingValues[2].toLowerCase():
+      return AddFormPricePerNightMinValues[2];
+    case AddFormTypeHousingValues[3].toLowerCase():
+      return AddFormPricePerNightMinValues[3];
+    case AddFormTypeHousingValues[4].toLowerCase():
+      return AddFormPricePerNightMinValues[4];
   }
 };
 
@@ -203,7 +240,7 @@ const validatePricePerNightField = () => {
   });
   addFormPricePerNight.addEventListener('input', () => {
     if (addFormPricePerNight.value) {
-      const minPrice = parseInt(addFormPricePerNight.getAttribute('min'), 10);
+      const minPrice = parseInt(addFormPricePerNight.getAttribute('min'), FOUNDATION_OF_CALCULUS_SYSTEM);
       (addFormPricePerNight.value < minPrice)
         ? addFormPricePerNight.setCustomValidity('Цена за указанный тип жилья не может быть ниже ' + minPrice)
         : addFormPricePerNight.setCustomValidity('');
@@ -220,8 +257,8 @@ const validatePricePerNightField = () => {
 const addImageToPhotoBlock = (dataURL) => {
   const photo = document.createElement('img');
   photo.src = dataURL;
-  photo.setAttribute('width', '40');
-  photo.setAttribute('height', '44');
+  photo.setAttribute('width', PHOTO_WIDTH);
+  photo.setAttribute('height', PHOTO_HEIGHT);
   photo.alt = 'Фотография жилья'
   photosBlock.appendChild(photo);
 }
@@ -296,12 +333,12 @@ const resetAddForm = (marker) => {
   photosBlock.innerHTML = '';
   marker.setLatLng(
     [
-      35.6817,
-      139.75388,
+      MAP_CENTER_COORDINATE_LAT,
+      MAP_CENTER_COORDINATE_LNG,
     ]);
   setTimeout(
     () => {
-      addressField.value = marker.getLatLng().lat.toFixed(5) + ', '  + marker.getLatLng().lng.toFixed(5);
+      addressField.value = marker.getLatLng().lat.toFixed(PRECISION_COORDINATE) + ', '  + marker.getLatLng().lng.toFixed(PRECISION_COORDINATE);
     } , 0);
 }
 
@@ -325,14 +362,14 @@ const configureFunctionalityResetButton = (marker, renderMarkersFunction) => {
 const displayOnSuccessSendFormDataMessage = () => {
   const message = document.querySelector('#success').content.querySelector('.success').cloneNode(true);
   document.addEventListener('keydown',(evt) => {
-    if (evt.keyCode === 27){
+    if (evt.keyCode === ESCAPE_KEY_CODE){
       message.remove();
     }
   }, {once: true});
   document.addEventListener('click',() => {
     message.remove();
   }, {once: true});
-  message.style.zIndex = 400;
+  message.style.zIndex = MESSAGE_Z_INDEX;
   document.querySelector('main').appendChild(message);
 };
 
@@ -342,14 +379,14 @@ const displayOnSuccessSendFormDataMessage = () => {
 const displayOnErrorSendFormDataMessage = () => {
   const message = document.querySelector('#error').content.querySelector('.error').cloneNode(true);
   document.addEventListener('keydown',(evt) => {
-    if (evt.keyCode === 27){
+    if (evt.keyCode === ESCAPE_KEY_CODE){
       message.remove();
     }
   }, {once: true});
   document.addEventListener('click',() => {
     message.remove();
   }, {once: true});
-  message.style.zIndex = 400;
+  message.style.zIndex = MESSAGE_Z_INDEX;
   document.querySelector('main').appendChild(message);
 };
 
@@ -376,11 +413,11 @@ const configureFunctionalitySubmitButton = (functionForSendData, marker) => {
 /**
  * Функция, конфигурирующая и валидирующая логику работы полей формы подачи объявления
  */
-const configureAddForm = () => {
+const configureAddForm = (addressDefaultLat, addressDefaultLng) => {
   validateTitle();
   validatePricePerNightField();
   validateCapacity();
-  setAddressFieldDefaultValue();
+  setAddressFieldDefaultValue(addressDefaultLat, addressDefaultLng);
   synchronizeTimeField();
   validateImageField();
 };

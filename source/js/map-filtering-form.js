@@ -1,3 +1,41 @@
+const housingPriceFilterValues = [
+  'LOW',
+  'MIDDLE',
+  'HIGHT',
+];
+
+const PricePoints = [
+  10000,
+  50000,
+];
+
+const HousingCapacityFilterValues = [
+  '0',
+  '1',
+  '2',
+];
+
+const CapacityPoints = [
+  1,
+  2,
+]
+/**
+ * Функция определяет вместимость по которой произойдет сортировка
+ *
+ * @param {number} value - значение которое будет проходить проверку при сортировке
+ *
+ * @returns выражение для проверки принадлежности значения интервалу
+ */
+const determineCapacity = (value) => {
+  switch (housingQuestsFilter.value) {
+    case HousingCapacityFilterValues[0]:
+      return value > CapacityPoints[1];
+    case HousingCapacityFilterValues[1]:
+      return value === CapacityPoints[0];
+    case HousingCapacityFilterValues[2]:
+      return value === CapacityPoints[1];
+  }
+};
 const mapFiltersForm = document.querySelector('.map__filters');
 const mapSelects =  mapFiltersForm.querySelectorAll('.map__filter');
 const housingTypeFilter = mapFiltersForm.querySelector('#housing-type');
@@ -31,12 +69,12 @@ const filterByHousingType = (data) => {
  */
 const determinePriceInterval = (value) => {
   switch (housingPriceFilter.value) {
-    case 'low':
-      return value <= 10000;
-    case 'middle':
-      return value > 10000 && value <= 50000;
-    case 'high':
-      return value >= 50000;
+    case housingPriceFilterValues[0].toLowerCase():
+      return value <= PricePoints[0];
+    case housingPriceFilterValues[1].toLowerCase():
+      return value > PricePoints[1] && value <= PricePoints[1];
+    case housingPriceFilterValues[2].toLowerCase():
+      return value >= PricePoints[1];
   }
 }
 
@@ -71,23 +109,9 @@ const filterByHousingRooms = (data) => {
   return filteredData;
 };
 
-/**
- * Функция определяет вместимость по которой произойдет сортировка
- *
- * @param {number} value - значение которое будет проходить проверку при сортировке
- *
- * @returns выражение для проверки принадлежности значения интервалу
- */
-const determineCapacity = (value) => {
-  switch (housingQuestsFilter.value) {
-    case '0':
-      return value > 2;
-    case '1':
-      return value === 1;
-    case '2':
-      return value === 2;
-  }
-};
+
+
+
 
 /**
  * Функция фильтрует полученные данные по колучеству гостей

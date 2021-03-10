@@ -1,3 +1,4 @@
+const SUCCESS__STATUS = 200;
 /**
  * отправляет GET запрос на сервер и обрабатывает данные
  *
@@ -8,7 +9,7 @@
 const getData = (onSuccess, onError) => {
   fetch('https://22.javascript.pages.academy/keksobooking/data')
     .then((response) => {
-      if (response.status === 200) {
+      if (response.status === SUCCESS__STATUS) {
         return response.json();
       }else {
         throw new Error('Не удалось получить данные');
@@ -30,20 +31,16 @@ const getData = (onSuccess, onError) => {
  * @param {function} onError - функция, которая выполнится при ошибке отправки данных
  */
 const sendData = (data, onSuccess, onError) => {
-  fetch('https://22.javascript.pages.academy/keksobooking/data',
+  fetch('https://22.javascript.pages.academy/keksobooking',
     {
       method: 'POST',
-      headers:
-      {
-        'Content-Type': 'multipart/form-data',
-      },
       body: data,
     },
   )
     .then((response) => {
       if( response.ok) {
         onSuccess();
-      }else{
+      }else {
         onError();
       }
     })

@@ -14,6 +14,8 @@ const RUSSIANTYPES = [
   'Бунгало',
 ]
 
+const PHOTO_WIDTH = 45;
+const PHOTO_HEIGHT = 40;
 const popupTemplate = document.querySelector('#card').content.querySelector('.popup');
 
 /**
@@ -56,8 +58,8 @@ const fillElement = (valueMassive, elementTag, elementClass, elementBlockToFill,
     }
     if (isOfferPhoto) {
       elementsListItem.src = value;
-      elementsListItem.width = 45;
-      elementsListItem.height = 40;
+      elementsListItem.width = PHOTO_WIDTH;
+      elementsListItem.height = PHOTO_HEIGHT;
       elementsListItem.alt = 'Фотография жилья';
     }
     elementsContainer.appendChild(elementsListItem);

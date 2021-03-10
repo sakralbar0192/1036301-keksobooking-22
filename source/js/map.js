@@ -2,7 +2,16 @@
 /**
  * Основные переменые модуля
  */
-const NUMBER_RENDERED_OFFERS_MARKERS = 10; //количество отрисовываемых маркеров
+const SIMILAR_OFFERS_MARKER_ICON_WIDTH = 40;
+const SIMILAR_OFFERS_MARKER_ICON_HEIGHT = 40;
+const SIMILAR_OFFERS_MARKER_ICON_ANCHOR_X = 20;
+const SIMILAR_OFFERS_MARKER_ICON_ANCHOR_Y = 40;
+const MAIN_MARKER_ICON_WIDTH = 52;
+const MAIN_MARKER_ICON_HEIGHT = 52;
+const MAIN_MARKER_ICON_ANCHOR_X = 26;
+const MAIN_MARKER_ICON_ANCHOR_Y = 52;
+const DEFAUL_MAP_ZOOM = 10;
+
 let map = {};
 let mainMarker = {};
 let mainMarkerPosition = {};
@@ -13,14 +22,14 @@ let offersMarkers = [];
  */
 const similarOffersMarkerIcon = L.icon({
   iconUrl: '../img/pin.svg',
-  iconSize: [40, 40],
-  iconAnchor: [20, 40],
+  iconSize: [SIMILAR_OFFERS_MARKER_ICON_WIDTH, SIMILAR_OFFERS_MARKER_ICON_HEIGHT],
+  iconAnchor: [SIMILAR_OFFERS_MARKER_ICON_ANCHOR_X, SIMILAR_OFFERS_MARKER_ICON_ANCHOR_Y],
 });
 
 const mainMarkerIcon = L.icon({
   iconUrl: '../img/main-pin.svg',
-  iconSize: [52, 52],
-  iconAnchor: [26, 52],
+  iconSize: [MAIN_MARKER_ICON_WIDTH, MAIN_MARKER_ICON_HEIGHT],
+  iconAnchor: [MAIN_MARKER_ICON_ANCHOR_X, MAIN_MARKER_ICON_ANCHOR_Y],
 });
 
 /**
@@ -28,15 +37,15 @@ const mainMarkerIcon = L.icon({
  *
  * @param {function} onLoad - Функция, которая выполнится при успешной загрузке карты
  */
-const initializeMap = (onLoad) => {
+const initializeMap = (onLoad, mapCenterCoordinateLat, mapCenterCoordinateLng) => {
   map = L.map('map-canvas')
     .on('load',() => {
       onLoad();
     })
     .setView({
-      lat:35.68170,
-      lng:139.75388,
-    }, 10)
+      lat: mapCenterCoordinateLat,
+      lng: mapCenterCoordinateLng,
+    }, DEFAUL_MAP_ZOOM)
 
   L.tileLayer(
     'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -75,8 +84,8 @@ const makeMarker = ( lat, lng, icoMarker, draggable) => {
  *
  * @param {function} onMoveEndFunction - функция, которую необходимо выполнить при завершении передвижения маркера
  */
-const createMainMarker = (onMoveEndFunction) => {
-  mainMarker = makeMarker(35.68170, 139.75388, mainMarkerIcon, true)
+const createMainMarker = (onMoveEndFunction, mainMarkerCoordinateLat, mainMarkerCoordinateLng) => {
+  mainMarker = makeMarker(mainMarkerCoordinateLat, mainMarkerCoordinateLng, mainMarkerIcon, true)
     .on('moveend', (evt) => {
       mainMarkerPosition = evt.target.getLatLng();
       onMoveEndFunction(mainMarkerPosition);
@@ -97,7 +106,7 @@ const renderOffersMarkers = (data, createPopupFunc) => {
     })
     offersMarkers =[];
   }
-  const renderedData =  data.slice(0,NUMBER_RENDERED_OFFERS_MARKERS);
+  const renderedData =  data.slice();
   renderedData.forEach((value) => {
     const marker = makeMarker(value.location.lat, value.location.lng, similarOffersMarkerIcon, false);
     const popup = createPopupFunc(value)
