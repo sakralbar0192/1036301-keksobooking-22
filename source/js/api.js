@@ -1,10 +1,10 @@
-const SUCCESS__STATUS = 200;
+const SUCCESS__STATUS = 200; //статус успешного запроса
+
 /**
  * отправляет GET запрос на сервер и обрабатывает данные
  *
- * @param {function} onError - функция, которая выполнится при ошибке получении данных
  * @param {function} onSuccess - функция, которая выполнится при успешном получении данных
- *
+ * @param {function} onError - функция, которая выполнится при ошибке получении данных
  */
 const getData = (onSuccess, onError) => {
   fetch('https://22.javascript.pages.academy/keksobooking/data')

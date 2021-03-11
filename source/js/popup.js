@@ -5,17 +5,18 @@ const TYPES = [
   'flat',
   'house',
   'bungalow',
-]
+]; //типы жилья на английском языке
 
 const RUSSIANTYPES = [
   'Дворец',
   'Квартира',
   'Дом',
   'Бунгало',
-]
+]; //типы жилья на русском языке
 
-const PHOTO_WIDTH = 45;
-const PHOTO_HEIGHT = 40;
+const PHOTO_WIDTH = 45; //ширина фотографий жилья
+const PHOTO_HEIGHT = 40; //высота фотографий жилья
+
 const popupTemplate = document.querySelector('#card').content.querySelector('.popup');
 
 /**

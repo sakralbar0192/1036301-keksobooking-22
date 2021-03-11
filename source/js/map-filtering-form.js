@@ -1,41 +1,27 @@
-const housingPriceFilterValues = [
+const ANY_VALUE = 'any'; //дефолтное значение выпадающих списков в форме фильтрации объявлений
+
+const HousingPriceFilterValues = [
   'LOW',
   'MIDDLE',
-  'HIGHT',
-];
+  'HIGH',
+]; //значения выпадающего списка фильтрующего объявления по цене
 
-const PricePoints = [
+const HousingPricePoints = [
   10000,
   50000,
-];
+]; //ценовые точки для создания интервалов цены при фильтрации объявлений
 
-const HousingCapacityFilterValues = [
+const HousingQuestsFilterValues = [
   '0',
   '1',
   '2',
-];
+]; //значения выпадающего списка фильтрующего объявления по количеству гостей
 
-const CapacityPoints = [
+const HousingQuestsPoints = [
   1,
   2,
-]
-/**
- * Функция определяет вместимость по которой произойдет сортировка
- *
- * @param {number} value - значение которое будет проходить проверку при сортировке
- *
- * @returns выражение для проверки принадлежности значения интервалу
- */
-const determineCapacity = (value) => {
-  switch (housingQuestsFilter.value) {
-    case HousingCapacityFilterValues[0]:
-      return value > CapacityPoints[1];
-    case HousingCapacityFilterValues[1]:
-      return value === CapacityPoints[0];
-    case HousingCapacityFilterValues[2]:
-      return value === CapacityPoints[1];
-  }
-};
+]; //точки для создания интервалов при фильтрации по количеству гостей
+
 const mapFiltersForm = document.querySelector('.map__filters');
 const mapSelects =  mapFiltersForm.querySelectorAll('.map__filter');
 const housingTypeFilter = mapFiltersForm.querySelector('#housing-type');
@@ -45,148 +31,164 @@ const housingQuestsFilter = mapFiltersForm.querySelector('#housing-guests');
 const mapCheckboxes = mapFiltersForm.querySelectorAll('.map__checkbox');
 
 /**
- * Функция фильтрует полученные данные по типу жилья
- *
- * @param {object} data - данные для фильтрации
- *
- * @returns {object} отфильтрованные данные
- */
-const filterByHousingType = (data) => {
-  const currentValue = housingTypeFilter.value;
-  let filteredData = [];
-  filteredData = data.filter((object) => {
-    return object.offer.type === currentValue;
-  })
-  return filteredData;
-};
-
-/**
  * Функция определяет ценовой интервал по которому произойдет сортировка
  *
  * @param {number} value - значение которое будет проходить проверку на принадлежностиь интервалу при сортировке
  *
- * @returns выражение для проверки принадлежности значения интервалу
+ * @returns {boolean} результатпроверки принадлежности переданного значения интервалу
  */
 const determinePriceInterval = (value) => {
   switch (housingPriceFilter.value) {
-    case housingPriceFilterValues[0].toLowerCase():
-      return value <= PricePoints[0];
-    case housingPriceFilterValues[1].toLowerCase():
-      return value > PricePoints[1] && value <= PricePoints[1];
-    case housingPriceFilterValues[2].toLowerCase():
-      return value >= PricePoints[1];
+    case HousingPriceFilterValues[0].toLowerCase():
+      return value <= HousingPricePoints[0];
+    case HousingPriceFilterValues[1].toLowerCase():
+      return value > HousingPricePoints[0] && value <= HousingPricePoints[1];
+    case HousingPriceFilterValues[2].toLowerCase():
+      return value >= HousingPricePoints[1];
   }
 }
 
 /**
- * Функция фильтрует полученные данные по  цене за ночь
+ * Функция определяет вместимость по которой произойдет сортировка
  *
- * @param {object} data - данные для фильтрации
+ * @param {number} value - значение которое будет проходить проверку при сортировке
  *
- * @returns {bject} filtredData - отфильтрованные данные
+ * @returns {boolean} результат проверки на принадлежность переданного значения интервалу
  */
-const filterByHousingPrice = (data) => {
-  let filteredData = [];
-  filteredData = data.filter((object) => {
-    return determinePriceInterval(object.offer.price);
-  });
-  return filteredData;
+const determineCapacity = (value) => {
+  switch (housingQuestsFilter.value) {
+    case HousingQuestsFilterValues[0]:
+      return value > HousingQuestsPoints[1];
+    case HousingQuestsFilterValues[1]:
+      return value === HousingQuestsPoints[0];
+    case HousingQuestsFilterValues[2]:
+      return value === HousingQuestsPoints[1];
+  }
 };
 
 /**
- * Функция фильтрует полученные данные по количеству комнат
+ * Функция, проверяющая соответствие переданного элемента фильтру по вместимости
  *
- * @param {object} data - данные для фильтрации
- *
- * @returns {bject} filtredData - отфильтрованные данные
+ * @param {object} dataElement - элемент данных проходящий проверку на соответствие выставленным фильтрам
  */
-const filterByHousingRooms = (data) => {
-  const currentValue = housingRoomsFilter.value;
-  let filteredData = [];
-  filteredData = data.filter((object) => {
-    return object.offer.rooms.toString() === currentValue;
-  })
-  return filteredData;
+const checkValidityDataElementByHousingQuests = (dataElement) => {
+  if (housingQuestsFilter.value === ANY_VALUE) {
+    return true;
+  } else {
+    return determineCapacity(dataElement.offer.guests)
+  }
 };
 
-
-
-
+/**
+ * Функция, проверяющая соответствие переданного элемента фильтру по количеству комнат
+ *
+ * @param {object} dataElement - элемент данных проходящий проверку на соответствие выставленным фильтрам
+ */
+const checkValidityDataElementByHousingRooms = (dataElement) => {
+  if (housingRoomsFilter.value === ANY_VALUE) {
+    return true;
+  } else {
+    return  dataElement.offer.rooms.toString() === housingRoomsFilter.value;
+  }
+};
 
 /**
- * Функция фильтрует полученные данные по колучеству гостей
+ * Функция, проверяющая соответствие переданного элемента фильтру по цене жилья
  *
- * @param {object} data - данные для фильтрации
- *
- * @returns {bject} filtredData - отфильтрованные данные
+ * @param {object} dataElement - элемент данных проходящий проверку на соответствие выставленным фильтрам
  */
-const filterByHousingGuests = (data) => {
-  let filteredData = [];
-  filteredData = data.filter((object) => {
-    return determineCapacity(object.offer.guests);
-  })
-  return filteredData;
-}
+const checkValidityDataElementByHousingPrice = (dataElement) => {
+  if (housingPriceFilter.value === ANY_VALUE) {
+    return true;
+  } else {
+    return determinePriceInterval(dataElement.offer.price);
+  }
+};
 
 /**
- * Функция фильтрует полученные данные по наличию дополнительных преимуществ
+ * Функция, проверяющая соответствие переданного элемента фильтру по типу жилья
  *
- * @param {object} data - данные для фильтрации
- *
- * @returns {bject} filtredData - отфильтрованные данные
+ * @param {object} dataElement - элемент данных проходящий проверку на соответствие выставленным фильтрам
  */
-const filterByAdditionalFeatures = (data) => {
+const checkValidityDataElementByHousingType = (dataElement) => {
+  if (housingTypeFilter.value === ANY_VALUE) {
+    return true;
+  } else {
+    return  dataElement.offer.type === housingTypeFilter.value;
+  }
+};
+
+/**
+ * Функция, проверяющая соответствие переданного элемента фильтру по дополнительным преимуществам
+ *
+ * @param {object} dataElement - элемент данных проходящий проверку на соответствие выставленным фильтрам
+ */
+const checkValidityByAdditionalFeatures = (dataElement) => {
+  const checkedCheckboxesValues = [];
   mapCheckboxes.forEach((checkbox) => {
     if (checkbox.checked) {
-      data = data.filter((object) => {
-        const hasOfferFeature = object.offer.features.some(value => value === checkbox.value)
-        return hasOfferFeature;
-      })
+      checkedCheckboxesValues.push(checkbox.value)
     }
-  });
-  return data;
+  })
+  let isDataElementValidByAdditionalFeatures = true;
+  checkedCheckboxesValues.forEach((checkboxValue) => {
+    const hasOfferValue = dataElement.offer.features.some((feature) => feature === checkboxValue);
+    isDataElementValidByAdditionalFeatures = isDataElementValidByAdditionalFeatures && hasOfferValue
+    return isDataElementValidByAdditionalFeatures
+  })
+  return isDataElementValidByAdditionalFeatures;
 }
 
 /**
- * Функция фильтрует полученные данные по всем выставленным фильтрам
+ * Функция, проверяющая соответствие переданного элемента данных выставленным фильтрам
+ *
+ * @param {object} dataElement - элемент данных проходящий проверку на соответствие выставленным фильтрам
+ *
+ * @returns {boolean} - соответствует ли элемент фильтрам
+ */
+const checkDataElementValidity = (dataElement) => {
+  return checkValidityDataElementByHousingType(dataElement)
+  && checkValidityDataElementByHousingPrice(dataElement)
+  && checkValidityDataElementByHousingRooms(dataElement)
+  && checkValidityDataElementByHousingQuests(dataElement)
+  && checkValidityByAdditionalFeatures(dataElement);
+};
+
+/**
+ * Функция, фильтрующая входящие данные
  *
  * @param {object} data - данные для фильтрации
- *
- * @returns {bject} filtredData - отфильтрованные данные
+ * @param {number} numberOfRenderingMarkers - количество отрисовываемых элементов
  */
-const filterOffers = (data) => {
-  let filteredData = data.slice();
-  if (housingTypeFilter.value != 'any') {
-    filteredData = filterByHousingType(filteredData)
+const filterOffers = (data, numberOfRenderingMarkers) => {
+  const filteredData = [];
+  for (let i = 0; i < data.length; i++) {
+    if (filteredData.length === numberOfRenderingMarkers){
+      break;
+    }
+    if (checkDataElementValidity(data[i])){
+      filteredData.push(data[i])
+    }
   }
-  if (housingPriceFilter.value != 'any') {
-    filteredData = filterByHousingPrice(filteredData);
-  }
-  if (housingRoomsFilter.value != 'any') {
-    filteredData = filterByHousingRooms(filteredData);
-  }
-  if (housingQuestsFilter.value != 'any') {
-    filteredData = filterByHousingGuests(filteredData);
-  }
-  filteredData = filterByAdditionalFeatures(filteredData)
   return filteredData;
 };
 
 /**
- * Функция фильтрует данные по событию change и передает их в другую функцию для дальнейшей обработки
+ * Функция настраивает работу формы для фильтрации объявлений
+ * и передает отфильтрованные данные другой функции, которая их отрисует
  *
  * @param {object} data - данные для фильтрации
- * @param {function} callback - функция обрабатывающая отфильтрованные данные
+ * @param {function} renderFunction - функция, которая отрисует отфильтрованные данные
+ * @param {number} numberOfRenderingMarkers - количество отрисовываемых элементов
  */
-const configureFiltering = (data, callback) => {
+const configureFiltering = (data, renderFunction, numberOfRenderingMarkers) => {
   const filters = Array.from(mapSelects).concat(Array.from(mapCheckboxes))
   filters.forEach((filter) => {
     filter.addEventListener('change', () => {
-      let filteredData = filterOffers(data);
-      callback(filteredData)
+      let filteredData = filterOffers(data, numberOfRenderingMarkers);
+      renderFunction(filteredData)
     })
   })
 }
-
 
 export {configureFiltering};

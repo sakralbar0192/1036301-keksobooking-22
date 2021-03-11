@@ -13,51 +13,45 @@ import {createPopupElement} from './popup.js';
 import {configureFiltering} from './map-filtering-form.js';
 import {showAlert, debounce} from './util.js';
 
-const MAP_CENTER_COORDINATE_LAT = 35.68170;
-const MAP_CENTER_COORDINATE_LNG = 139.75388;
+const MAP_CENTER_COORDINATE_LAT = 35.68170; //lat координата центра карты
+const MAP_CENTER_COORDINATE_LNG = 139.75388; //lng координата центра карты
+const DEFAUL_MAP_ZOOM = 10; //дефолтное приближение карты
+const NUMBER_RENDERING_MARKERS = 10; //количество отрисовываемых маркеров
 const RENDER_DELAY = 500; //задержка перед отрисовкой маркеров на карте
 const ERROR_ALERT_DISPLAY_TIME = 2000; //время показа сообщения об ошибке получения данных
-/**
- * Делает формы неактивными до инициализации карты.
- */
+
 makeFormsInactive();
 
-/**
- * Инициализирует карту и делает формы активными при успешной загрузке.
- */
-initializeMap(makeAddFormActive, MAP_CENTER_COORDINATE_LAT, MAP_CENTER_COORDINATE_LNG);
+initializeMap(makeAddFormActive, MAP_CENTER_COORDINATE_LAT, MAP_CENTER_COORDINATE_LNG, DEFAUL_MAP_ZOOM);
 
-/**
- * Добавляет главный маркер и синхронизирует поле 'Адрес' со значениями его позиции.
- */
 createMainMarker(setAddressFieldValue, MAP_CENTER_COORDINATE_LAT, MAP_CENTER_COORDINATE_LNG);
 
-/**
- * настраивает форму добавления нового объявления,
- */
 configureAddForm(MAP_CENTER_COORDINATE_LAT, MAP_CENTER_COORDINATE_LNG);
 
-/**
- * настраивает отправку данных с формы по сабмиту, сбрасывает форму и
- * главный маркер к значениям по умолчанию в случае успешной отправки
- */
 configureFunctionalitySubmitButton((formData, functionOnSuccessSendFormData, functionOnErrorSendFormData) => {
   sendData(formData, functionOnSuccessSendFormData, functionOnErrorSendFormData)
-}, mainMarker);
+}, mainMarker, MAP_CENTER_COORDINATE_LAT, MAP_CENTER_COORDINATE_LNG);
 
-/**
- * Делает запрос на сервер, создает на карте метки объявлений со всплывающими попапами,активирует
- * форму с фильтрами и позволяет фильтровать объявления, обновляя результат с задержкой после последнего изменения
- */
 getData(
   (data) => {
-    renderOffersMarkers(data, createPopupElement);
+    renderOffersMarkers(data.slice(0,NUMBER_RENDERING_MARKERS), createPopupElement);
     makeMapFiltersFormActive();
-
-    configureFunctionalityResetButton(mainMarker,() => renderOffersMarkers(data, createPopupElement))
-    configureFiltering(data, (filteredData) => {
-      debounce(() => {renderOffersMarkers(filteredData, createPopupElement)}, RENDER_DELAY)
-    });
+    configureFunctionalityResetButton(
+      mainMarker,
+      MAP_CENTER_COORDINATE_LAT,
+      MAP_CENTER_COORDINATE_LNG,
+      () => renderOffersMarkers(data, createPopupElement),
+    )
+    configureFiltering(
+      data,
+      (filteredData) => {
+        debounce(
+          () => {renderOffersMarkers(filteredData, createPopupElement)},
+          RENDER_DELAY,
+        )
+      },
+      NUMBER_RENDERING_MARKERS,
+    );
   },
   (error) => showAlert(ERROR_ALERT_DISPLAY_TIME, error),
 );

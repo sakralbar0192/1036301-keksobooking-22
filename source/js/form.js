@@ -2,44 +2,42 @@ const AlowedTypes = [
   'JPEG',
   'JPG',
   'PNG',
-];
+]; //разрешенные форматы изображений
 
 const AddFormRoomNumberFieldValues = [
   '100',
   '1',
   '2',
   '3',
-];
+]; //значения выпадающего списка "Количество комнат"
 
 const AddFormCapacityFieldValues = [
   '3',
   '2',
   '1',
   '0',
-]
+]; //значения выпадающего списка "Количество мест"
 
 const AddFormTypeHousingValues = [
   'BUNGALOW',
   'FLAT',
   'HOUSE',
   'PALACE',
-]
+]; //значения выпадающего списка "Тип жилья"
 
 const AddFormPricePerNightMinValues = [
   0,
   1000,
   5000,
   10000,
-]
+]; //значения минимальных цен поля "Цена за ночь"
 
-const PRECISION_COORDINATE = 5;
-const PHOTO_WIDTH = '40';
-const PHOTO_HEIGHT = '44';
-const MESSAGE_Z_INDEX = 400;
-const FOUNDATION_OF_CALCULUS_SYSTEM = 10;
-const MAP_CENTER_COORDINATE_LAT = 35.68170;
-const MAP_CENTER_COORDINATE_LNG = 139.75388;
-const ESCAPE_KEY_CODE = 27;
+const PRECISION_COORDINATE = 5; //количество знаков после запятой для координат в поле "Адрес"
+const PHOTO_WIDTH = '40'; //ширина фотографии, загруженной в форму
+const PHOTO_HEIGHT = '44'; //высота фотографии, загруженной в форму
+const MESSAGE_Z_INDEX = 400; //значение z-индекса для сообщении о результате отправки формы
+const FOUNDATION_OF_CALCULUS_SYSTEM = 10; //основание системы исчисления для приведения строки к числовому типу данных
+const ESCAPE_KEY_CODE = 27; //код клавиши escape
 
 const mapFiltersForm = document.querySelector('.map__filters');
 const mapFilterHousingFeatures = mapFiltersForm.querySelector('#housing-features');
@@ -101,14 +99,17 @@ const makeAddFormActive = () => {
 };
 
 /**
- * Функция делает форму для фильтрации активной
+ * Функция делает форму для фильтрации предложений активной
  */
 const makeMapFiltersFormActive = () => {
   makeFormActive(mapFiltersForm, '.map__filters');
 };
 
 /**
- * Функция устанавливает в поле Адрес значения по-умолчанию и добавляет ему атрибут readonly
+ * Функция устанавливает в поле Адрес значения по-умолчанию и делает его неактивным для ручного редактирования
+ *
+ * @param {number} - defaultLat - значение lat по-умолчанию
+ * @param {number} - defaultLng - значение lng по-умолчанию
  */
 const setAddressFieldDefaultValue = (defaultLat, defaultLng) => {
   addressField.value = defaultLat + ', ' + defaultLng;
@@ -118,11 +119,11 @@ const setAddressFieldDefaultValue = (defaultLat, defaultLng) => {
 /**
  * Функция устанавливает полю 'Адрес' значения параметра position
  *
- * @param {object} position - значения, к которым привязано поле 'Адрес'
+ * @param {object} position - параметр, изменение которого отражается в поле "Адрес"
  */
 const setAddressFieldValue = (position) => {
   addressField.value = position.lat.toFixed(PRECISION_COORDINATE) + ', '  + position.lng.toFixed(PRECISION_COORDINATE);
-}
+};
 
 /**
  * Функция определяющая значения поля "Количество мест" в зависимости от поля  "Количество комнат"
@@ -221,7 +222,7 @@ const validateTitle = () => {
     }
     addFormTitle.reportValidity();
   });
-}
+};
 
 /**
  * Функция для валидации поля 'Цена за ночь'
@@ -261,7 +262,7 @@ const addImageToPhotoBlock = (dataURL) => {
   photo.setAttribute('height', PHOTO_HEIGHT);
   photo.alt = 'Фотография жилья'
   photosBlock.appendChild(photo);
-}
+};
 
 /**
  * Функция заменяет изображение аватара на загруженный файл в соответствующем блоке
@@ -279,7 +280,7 @@ const displayUploadedImage = (file, isThisAvatarField) => {
       : addImageToPhotoBlock(reader.result)
   })
   reader.readAsDataURL(file);
-}
+};
 
 /**
  * Функция проверяющая, что загруженный файл имеет допустимое расширение
@@ -303,7 +304,7 @@ const validateImageField = () => {
       field.reportValidity();
     })
   })
-}
+};
 
 /**
  * Функция возвращает поля в форме с фильтрами карты к значениям по умолчанию
@@ -323,38 +324,44 @@ const resetMapFiltersForm = () => {
  * с полем 'Адрес' и значение самого поля в значения по-умолчанию
  *
  * @param {object} marker - маркер, связанный с полем 'Адрес'
+ * @param {number} markerCoordinateLat - значение lat координаты маркера по-умолчанию
+ * @param {number} markerCoordinateLng - значение lng координаты маркера по-умолчанию
  */
-const resetAddForm = (marker) => {
+const resetAddForm = (marker, markerCoordinateLat, markerCoordinateLng) => {
   addForm.reset();
   addFormCapacity.setCustomValidity('');
   addFormPricePerNight.setCustomValidity('');
   addFormTitle.setCustomValidity('');
+  addFormPricePerNight.setAttribute('min',determineMinPrice());
+  addFormPricePerNight.setAttribute('placeholder', determineMinPrice());
   avatarImage.src = 'img/muffin-grey.svg';
   photosBlock.innerHTML = '';
   marker.setLatLng(
     [
-      MAP_CENTER_COORDINATE_LAT,
-      MAP_CENTER_COORDINATE_LNG,
+      markerCoordinateLat,
+      markerCoordinateLng,
     ]);
   setTimeout(
     () => {
       addressField.value = marker.getLatLng().lat.toFixed(PRECISION_COORDINATE) + ', '  + marker.getLatLng().lng.toFixed(PRECISION_COORDINATE);
     } , 0);
-}
+};
 
 /**
- * Функция настраивающая работу кнопки 'очистить'
+ * Функция настраивающая работу кнопки 'очистить' формы для подачи объявлений
  *
- * @param {function} renderMarkersFunction - функция для отрисовки нефильтрованных предложений
  * @param {object} marker - главный маркер позиция, которого сбрасывается до изначальной
+ * @param {number} markerCoordinateLat - значение lat координаты маркера по-умолчанию
+ * @param {number} markerCoordinateLng - значение lng координаты маркера по-умолчанию
+ * @param {function} renderMarkersFunction - функция для отрисовки нефильтрованных предложений
  */
-const configureFunctionalityResetButton = (marker, renderMarkersFunction) => {
+const configureFunctionalityResetButton = (marker, markerCoordinateLat, markerCoordinateLng, renderMarkersFunction) => {
   addFormResetButton.addEventListener('click', () => {
-    resetAddForm(marker)
+    resetAddForm(marker, markerCoordinateLat, markerCoordinateLng)
     resetMapFiltersForm();
     renderMarkersFunction();
   });
-}
+};
 
 /**
  * Функция, показывающая сообщение об успешной отправке формы
@@ -391,12 +398,15 @@ const displayOnErrorSendFormDataMessage = () => {
 };
 
 /**
- * Функция создающая форме событие по submit, отправляющее данные с формы с помощью переданной функции
+ * Функция, которая настраивает отправку данных формы подачи объявления,
+ * а также сброс формы и возврат значений к дефолтным
  *
- * @param {function} functionForSendData - Функция выполняющая отправку собранных данных
+ * @param {function} functionForSendData - Функция выполняющая отправку данных формы
  * @param {object} marker - маркер, значения которого нужно сбросить к изначальным при успешной отправке данных
+ * @param {number} markerCoordinateLat - значение lat координаты маркера по-умолчанию
+ * @param {number} markerCoordinateLng - значение lng координаты маркера по-умолчанию
  */
-const configureFunctionalitySubmitButton = (functionForSendData, marker) => {
+const configureFunctionalitySubmitButton = (functionForSendData, marker, markerCoordinateLat, markerCoordinateLng) => {
   addForm.addEventListener('submit', (evt) => {
     evt.preventDefault();
     const formData = new FormData(evt.target);
@@ -404,14 +414,17 @@ const configureFunctionalitySubmitButton = (functionForSendData, marker) => {
       formData,
       () => {
         displayOnSuccessSendFormDataMessage();
-        resetAddForm(marker)
+        resetAddForm(marker, markerCoordinateLat, markerCoordinateLng)
       },
       displayOnErrorSendFormDataMessage);
   });
-}
+};
 
 /**
- * Функция, конфигурирующая и валидирующая логику работы полей формы подачи объявления
+ * Функция, настраивающая логику работы полей формы подачи объявления и их валидацию
+ *
+ * @param {number} addressDefaultLat - lat значение поля "Адрес" по-умолчанию
+ * @param {number} addressDefaultLng - lng значение поля "Адрес" по-умолчанию
  */
 const configureAddForm = (addressDefaultLat, addressDefaultLng) => {
   validateTitle();
