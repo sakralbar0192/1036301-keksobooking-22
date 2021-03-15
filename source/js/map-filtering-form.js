@@ -72,11 +72,7 @@ const determineCapacity = (value) => {
  * @param {object} dataElement - элемент данных проходящий проверку на соответствие выставленным фильтрам
  */
 const checkValidityDataElementByHousingQuests = (dataElement) => {
-  if (housingQuestsFilter.value === ANY_VALUE) {
-    return true;
-  } else {
-    return determineCapacity(dataElement.offer.guests)
-  }
+  return housingQuestsFilter.value === ANY_VALUE ||  determineCapacity(dataElement.offer.guests);
 };
 
 /**
@@ -85,11 +81,7 @@ const checkValidityDataElementByHousingQuests = (dataElement) => {
  * @param {object} dataElement - элемент данных проходящий проверку на соответствие выставленным фильтрам
  */
 const checkValidityDataElementByHousingRooms = (dataElement) => {
-  if (housingRoomsFilter.value === ANY_VALUE) {
-    return true;
-  } else {
-    return  dataElement.offer.rooms.toString() === housingRoomsFilter.value;
-  }
+  return housingRoomsFilter.value === ANY_VALUE || dataElement.offer.rooms.toString() === housingRoomsFilter.value;
 };
 
 /**
@@ -98,11 +90,7 @@ const checkValidityDataElementByHousingRooms = (dataElement) => {
  * @param {object} dataElement - элемент данных проходящий проверку на соответствие выставленным фильтрам
  */
 const checkValidityDataElementByHousingPrice = (dataElement) => {
-  if (housingPriceFilter.value === ANY_VALUE) {
-    return true;
-  } else {
-    return determinePriceInterval(dataElement.offer.price);
-  }
+  return housingPriceFilter.value === ANY_VALUE || determinePriceInterval(dataElement.offer.price);
 };
 
 /**
@@ -111,11 +99,7 @@ const checkValidityDataElementByHousingPrice = (dataElement) => {
  * @param {object} dataElement - элемент данных проходящий проверку на соответствие выставленным фильтрам
  */
 const checkValidityDataElementByHousingType = (dataElement) => {
-  if (housingTypeFilter.value === ANY_VALUE) {
-    return true;
-  } else {
-    return  dataElement.offer.type === housingTypeFilter.value;
-  }
+  return housingTypeFilter.value === ANY_VALUE || dataElement.offer.type === housingTypeFilter.value;
 };
 
 /**
